@@ -7,7 +7,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.2.25"
+    "dayjs": "^1.10.7",
+    "lodash": "^4.17.21",
+    "nprogress": "^0.2.0",
+    "vee-validate": "^4.5.7",
+    "vue": "^3.2.25",
+    "vue-final-modal": "^3.4.3",
+    "vue-router": "^4.0.12",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.0.0",
