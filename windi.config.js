@@ -1,6 +1,6 @@
 // @ts-check - enable TS check for js file
-import { defineConfig } from "windicss/helpers";
+import { defineConfig } from 'windicss/helpers'
 
 export default defineConfig({
-  attributify: true,
-});
+  attributify: true
+})
