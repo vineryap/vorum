@@ -1,5 +1,4 @@
 import store from '@/store'
-import { returnToHome } from '@/router/helpers'
 
 const authCheck = (query = null) => {
   if (!store.state.auth.authId) {
