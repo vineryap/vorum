@@ -94,21 +94,10 @@ const props = defineProps({
     threads: {
         type: Array,
         required: true
-    },
-    categoryName: {
-        type: String
-    },
-    categoryId: {
-        type: String,
-        required: false
-    },
-    categoryDescription: {
-        type: String,
-        required: false
     }
 })
 
-const { threads, categoryName, categoryId, categoryDescription } = props
+const { threads } = props
 
 </script>
 
