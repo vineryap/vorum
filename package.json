@@ -4,7 +4,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "format": "prettier .  --write"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -27,8 +29,13 @@
     "@iconify/json": "^1.1.455",
     "@vitejs/plugin-vue": "^2.0.0",
     "@vue/compiler-sfc": "^3.2.26",
+    "eslint": "^8.7.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^8.3.0",
     "unplugin-icons": "^0.13.0",
     "vite": "^2.7.2",
+    "vite-plugin-eslint": "^1.3.0",
     "vite-plugin-windicss": "^1.6.2",
     "windicss": "^3.4.2"
   }
