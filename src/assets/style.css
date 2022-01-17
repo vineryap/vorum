@@ -74,90 +74,6 @@ figcaption {
   max-width: 100%;
 }
 
-.forum-list {
-  @apply rounded;
-  padding: 0;
-  background: white;
-  margin: 20px 0;
-}
-
-.forum-list .forum-listing {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 10px 20px 30px;
-}
-
-.forum-list .forum-listing:nth-child(odd) {
-  background: rgba(73, 89, 96, 0.06);
-  border-bottom-left-radius: 20px;
-}
-
-.forum-list .forum-listing:last-child {
-  border-bottom-left-radius: 0;
-}
-
-.forum-list .forum-listing .forum-details {
-  flex-basis: 52%;
-}
-
-@media (min-width: 240px) and (max-width: 720px) {
-  .forum-list .forum-listing .forum-details {
-    flex-basis: 100%;
-  }
-}
-
-.forum-list .forum-listing .forum-details ul.subforums {
-  padding-left: 5px;
-  display: block;
-}
-
-.forum-list .forum-listing .forum-details ul.subforums::before {
-  content: '⌙';
-  margin-right: 5px;
-}
-
-.forum-list .forum-listing .forum-details ul.subforums.subforums li {
-  display: inline;
-}
-
-.forum-list
-  .forum-listing
-  .forum-details
-  ul.subforums.subforums
-  li:not(:last-of-type)::after {
-  content: '\f111';
-  font-family: 'FontAwesome';
-  font-size: 4px;
-  position: relative;
-  top: -3px;
-  left: 2px;
-  padding: 0 3px;
-  color: #878787;
-}
-
-.forum-list .forum-listing .threads-count {
-  flex-basis: 12%;
-  text-align: center;
-}
-
-.forum-list .forum-listing .threads-count .count {
-  font-weight: 100;
-  display: block;
-}
-
-.forum-list .forum-listing .last-thread {
-  flex-basis: 32%;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.forum-list .forum-listing .last-thread .avatar {
-  margin-right: 10px;
-}
-
 .forum-header {
   display: flex;
   justify-content: space-between;
@@ -184,43 +100,6 @@ figcaption {
 
 .forum-stats ul li .fa-comments-o {
   font-size: 26px;
-}
-
-.thread-list {
-  padding: 0;
-  background-color: white;
-}
-
-.thread-list .thread {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 0 5px 20px;
-  min-height: 45px;
-}
-
-.thread-list .thread:nth-child(odd) {
-  background: rgba(73, 89, 96, 0.06);
-  border-bottom-left-radius: 20px;
-}
-
-.thread-list .thread:last-child {
-  border-bottom-left-radius: 0;
-}
-
-.thread-list .thread .replies-count {
-  flex-basis: 35%;
-}
-
-.thread-list .thread .activity {
-  flex-basis: 35%;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.thread-list .thread .activity .avatar-medium {
-  margin-right: 10px;
 }
 
 .thread-header {
@@ -365,7 +244,6 @@ span.online::before {
 
 .text-faded,
 .forum-stats ul li,
-.thread-list .thread .created_at,
 .post-content blockquote.big .author span.time,
 .post-content blockquote.small .author .time,
 .post-content blockquote.simple .author,
@@ -396,7 +274,6 @@ h2 {
 }
 
 .text-lead,
-.forum-list .forum-listing .threads-count .count,
 .profile-card .stats span,
 .modal-container .modal .modal-header .title {
   @apply text-[26px] leading-normal font-light;
@@ -404,7 +281,6 @@ h2 {
 
 @media (min-width: 240px) and (max-width: 720px) {
   .text-lead,
-  .forum-list .forum-listing .threads-count .count,
   .profile-card .stats span,
   .modal-container .modal .modal-header .title {
     @apply text-[22px];
@@ -414,7 +290,6 @@ h2 {
 .text,
 p,
 .text-xsmall,
-.thread-list .thread .created_at,
 .pagination,
 .post-content blockquote.small .author .time,
 .post-content blockquote.simple .author .time,
@@ -425,7 +300,6 @@ span.online,
 .btn-brown,
 ul.breadcrumbs li:not(:last-of-type)::after,
 .text-small,
-.forum-list .forum-listing .forum-details ul.subforums,
 .post-content blockquote.big .author,
 .post-content blockquote.small .author a,
 .post-content blockquote.simple .author,
@@ -456,7 +330,6 @@ ul.breadcrumbs li,
   .text,
   p,
   .text-xsmall,
-  .thread-list .thread .created_at,
   .pagination,
   .post-content blockquote.small .author .time,
   .post-content blockquote.simple .author .time,
@@ -467,7 +340,6 @@ ul.breadcrumbs li,
   .btn-brown,
   ul.breadcrumbs li:not(:last-of-type)::after,
   .text-small,
-  .forum-list .forum-listing .forum-details ul.subforums,
   .post-content blockquote.big .author,
   .post-content blockquote.small .author a,
   .post-content blockquote.simple .author,
@@ -496,7 +368,6 @@ ul.breadcrumbs li,
 }
 
 .text-xsmall,
-.thread-list .thread .created_at,
 .pagination,
 .post-content blockquote.small .author .time,
 .post-content blockquote.simple .author .time,
@@ -511,7 +382,6 @@ ul.breadcrumbs li:not(:last-of-type)::after {
 
 @media (min-width: 240px) and (max-width: 720px) {
   .text-xsmall,
-  .thread-list .thread .created_at,
   .pagination,
   .post-content blockquote.small .author .time,
   .post-content blockquote.simple .author .time,
@@ -526,7 +396,6 @@ ul.breadcrumbs li:not(:last-of-type)::after {
 }
 
 .text-small,
-.forum-list .forum-listing .forum-details ul.subforums,
 .post-content blockquote.big .author,
 .post-content blockquote.small .author a,
 .post-content blockquote.simple .author,
@@ -538,7 +407,6 @@ ul.breadcrumbs li {
 
 @media (min-width: 240px) and (max-width: 720px) {
   .text-small,
-  .forum-list .forum-listing .forum-details ul.subforums,
   .post-content blockquote.big .author,
   .post-content blockquote.small .author a,
   .post-content blockquote.simple .author,
@@ -2217,10 +2085,7 @@ figure {
 
 @media (max-width: 820px) {
   .desktop-only,
-  .forum-list .forum-listing .threads-count,
-  .forum-list .forum-listing .last-thread,
   .forum-stats,
-  .thread-list .thread .activity,
   .navbar-user {
     display: none;
   }
