@@ -4,6 +4,7 @@ module.exports = {
   },
   extends: ['plugin:vue/vue3-recommended', 'prettier'],
   plugins: ['vue'],
+  parser: 'vue-eslint-parser',
   rules: {
     'no-unused-vars': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
