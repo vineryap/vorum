@@ -9,3 +9,9 @@ firestore.indexes.json
 firestore.rules
 storage.rules
 .firebaserc
+
+firestoreImport.js
+serviceAccount.json
+data.json
+
+*.log

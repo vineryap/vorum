@@ -6,7 +6,10 @@ module.exports = {
   plugins: ['vue'],
   parser: 'vue-eslint-parser',
   rules: {
-    'no-unused-vars': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+    'no-unused-vars':
+      process.env.NODE_ENV === 'production'
+        ? ['error', { argsIgnorePattern: '^_' }]
+        : ['warn', { argsIgnorePattern: '^_' }],
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'vue/require-default-prop':
