@@ -6,9 +6,9 @@
           <h1 class="text-center">Login</h1>
 
           <base-form-field
+            v-model="form.email"
             name="email"
             label="Email"
-            v-model="form.email"
             type="email"
             :rules="{
               isRequired: true,
@@ -16,9 +16,9 @@
             }"
           />
           <base-form-field
+            v-model="form.password"
             name="password"
             label="Password"
-            v-model="form.password"
             type="password"
             rules="isRequired"
           />
@@ -44,42 +44,38 @@
   </div>
 </template>
 
-<script>
-import { mapActions } from 'vuex'
+<script setup>
+import { mapActions } from '@/helpers'
+import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-export default {
-  data () {
-    return {
-      form: {
-        email: '',
-        password: ''
-      }
-    }
-  },
-  methods: {
-    ...mapActions(['auth/signInWithEmailAndPassword', 'auth/signInWithGoogle']),
-    async signIn () {
-      try {
-        await this['auth/signInWithEmailAndPassword'](this.form)
-        this.successRedirect()
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    async loginWithGoogle () {
-      await this['auth/signInWithGoogle']()
-      this.successRedirect()
-    },
-    successRedirect () {
-      const redirectTo = this.$route.query.redirectTo || { name: 'Home' }
-      this.$router.push(redirectTo)
-    }
-  },
-  created () {
-    this.$emit('pageReady')
+const router = useRouter()
+const route = useRoute()
+
+const form = ref({
+  email: '',
+  password: ''
+})
+const emit = defineEmits(['pageReady'])
+const { signInWithEmailAndPassword, signInWithGoogle } = mapActions('auth')
+async function signIn() {
+  try {
+    await signInWithEmailAndPassword(form.value)
+    successRedirect()
+  } catch (error) {
+    console.log(error)
   }
 }
+async function loginWithGoogle() {
+  await signInWithGoogle()
+  successRedirect()
+}
+function successRedirect() {
+  const redirectTo = route.query.redirectTo || { name: 'Home' }
+  router.push(redirectTo)
+}
+
+emit('pageReady')
 </script>
 
-<style>
-</style>
+<style></style>

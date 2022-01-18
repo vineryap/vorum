@@ -1,17 +1,23 @@
 <template>
   <div v-if="post && user" class="activity">
     <div class="activity-header">
-      <base-avatar-image :src="threadAuthor.avatar" alt class="hide-mobile avatar-small" />
+      <base-avatar-image
+        :src="threadAuthor.avatar"
+        alt
+        class="hide-mobile avatar-small"
+      />
       <p v-if="thread" class="title">
         {{ thread.title }}
-        <span
-          v-if="post.isFirstPost || (post.id === thread.firstPostId)"
-        >{{ user.username }} started a topic in {{ forum.name }}</span>
+        <span v-if="post.isFirstPost || post.id === thread.firstPostId"
+          >{{ user.username }} started a topic in {{ forum.name }}</span
+        >
         <span v-if="thread.userId !== user.id">
-          {{ user.username }} replied to {{ threadAuthor.username }}'s topic'
-          in {{ forum.name }}
+          {{ user.username }} replied to {{ threadAuthor.username }}'s topic' in
+          {{ forum.name }}
         </span>
-        <span v-if="thread.firstPostId !== post.id && thread.userId === user.id">
+        <span
+          v-if="thread.firstPostId !== post.id && thread.userId === user.id"
+        >
           {{ user.username }} replied to own topic in
           {{ forum.name }}
         </span>
@@ -33,115 +39,31 @@
       <base-time :timestamp="post.publishedAt" />
     </div>
   </div>
-  <!-- <div class="activity">
-          <div class="activity-header">
-            <base-avatar-image
-              :src="http://i.imgur.com/s0AzOkO.png"
-              alt=""
-              class="hide-mobile avatar-small"
-            />
-
-            <p class="title">
-              Wasabi vs horseraddish?
-              <span>Joker replied to Robin's topic in Cooking</span>
-            </p>
-          </div>
-
-          <div class="post-content">
-            <div>
-              <blockquote class="small">
-                <div class="author">
-                  <a href="/user/robin" class=""> robin</a>
-                  <span class="time">a month ago</span>
-                  <i class="fa fa-caret-down"></i>
-                </div>
-
-                <div class="quote">
-                  <p>
-                    Is horseradish and Wasabi the same thing? I&amp;#39;ve heard
-                    so many different things.
-                  </p>
-                </div>
-              </blockquote>
-
-              <p>They're not the same!</p>
-            </div>
-          </div>
-
-          <div class="thread-details">
-            <span>2 days ago</span>
-            <span>1 comment</span>
-          </div>
-        </div>
-
-        <div class="activity">
-          <div class="activity-header">
-            <img
-              src="https://i.imgur.com/OqlZN48.jpg"
-              alt=""
-              class="hide-mobile avatar-small"
-            />
-            <p class="title">
-              Where is the sign in button??????!?!?!?!
-              <span
-                >Joker replied to his own topic in Questions &amp;
-                Feedback</span
-              >
-            </p>
-          </div>
-
-          <div class="post-content">
-            <div>
-              <p>
-                <strong
-                  ><i>Post deleted due to inappropriate language</i></strong
-                >
-              </p>
-            </div>
-          </div>
-
-          <div class="thread-details">
-            <span>7 days ago</span>
-            <span>7 comments</span>
-          </div>
-  </div>-->
 </template>
 
-<script>
+<script setup>
 import { formatNoun } from '@/helpers'
-import { mapGetters } from 'vuex'
+import { mapGetters } from '@/helpers'
+import { computed, toRefs } from 'vue'
 
-export default {
-  props: {
-    user: {
-      type: Object,
-      required: true
-    },
-    post: {
-      type: [Object, null],
-      required: true
-    }
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
   },
-  computed: {
-    ...mapGetters({
-      getForum: 'forums/forum',
-      getThread: 'threads/thread',
-      getUser: 'users/user'
-    }),
-    thread() {
-      return this.getThread(this.post.threadId)
-    },
-    threadAuthor() {
-      return this.getUser(this.thread?.userId) || {}
-    },
-    forum() {
-      return this.getForum(this.thread?.forumId) || {}
-    }
-  },
-  methods: {
-    formatNoun
+  post: {
+    type: [Object, null],
+    required: true
   }
-}
+})
+const { user, post } = toRefs(props)
+
+const { forum: getForum } = mapGetters('forums')
+const { thread: getThread } = mapGetters('threads')
+const { user: getUser } = mapGetters('users')
+const thread = computed(() => getThread.value(post.value.threadId))
+const threadAuthor = computed(() => getUser.value(thread.value?.userId) || {})
+const forum = computed(() => getForum.value(thread.value?.forumId) || {})
 </script>
 
 <style scoped>

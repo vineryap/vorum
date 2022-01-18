@@ -1,13 +1,19 @@
 <template>
   <div class="container mx-auto">
-    <div v-if="pageLoadStatus_pageReady && user" class="flex-grid">
-      <user-profile-card-editor v-if="edit && !isUnauthenticatedUser" :user="user" />
-      <user-profile-card v-else :user="user" :isUnauthenticatedUser="isUnauthenticatedUser" />
+    <div v-if="isPageReady && user" class="flex-grid">
+      <user-profile-card-editor
+        v-if="edit && !isUnauthenticatedUser"
+        :user="user"
+      />
+      <user-profile-card
+        v-else
+        :user="user"
+        :is-unauthenticated-user="isUnauthenticatedUser"
+      />
 
       <div class="col-7 push-top">
         <div class="profile-header">
           <span class="text-lead">{{ user.username }}'s recent activity</span>
-          <a @click.prevent="isOnlyStartedThreads = !isOnlyStartedThreads">See only started threads</a>
         </div>
 
         <hr />
@@ -18,11 +24,11 @@
             :key="index"
             :user="user"
             :post="post"
-            :isOnlyStartedThreads="isOnlyStartedThreads"
+            :is-only-started-threads="isOnlyStartedThreads"
           />
           <base-infinite-scroll
+            :done="isAllPostLoaded"
             @load="fetchUserNextPosts"
-            :done="user.postsCount === posts.length"
           />
         </div>
       </div>
@@ -30,101 +36,91 @@
   </div>
 </template>
 
-<script>
-import { mapGetters, mapActions } from 'vuex'
+<script setup>
+import { mapGetters, mapActions } from '@/helpers'
 import UserActivityList from '@/components/UserActivityList.vue'
 import UserProfileCard from '@/components/UserProfileCard.vue'
 import UserProfileCardEditor from '@/components/UserProfileCardEditor.vue'
-import { pageLoadStatus } from '@/mixins'
+import usePageLoadStatus from '@/composables/usePageLoadStatus'
+import { ref, computed, toRefs } from 'vue'
 
-export default {
-  components: {
-    UserActivityList,
-    UserProfileCard,
-    UserProfileCardEditor
-  },
-  props: {
-    userId: { type: String, required: false },
-    edit: { type: Boolean, default: false }
-  },
-  data() {
-    return {
-      isOnlyStartedThreads: false,
-      allPostsLoaded: false,
-      lastVisiblePost: false
-    }
-  },
-  mixins: [pageLoadStatus],
-  computed: {
-    ...mapGetters({ authUser: 'auth/authUser' }),
-    ...mapGetters({ getUser: 'users/user' }),
-    ...mapGetters({ post: 'posts/post' }),
-    isUnauthenticatedUser() {
-      return !!this.userId && this.userId !== this.authUser.id
-    },
-    user() {
-      if (this.isUnauthenticatedUser) {
-        return this.getUser(this.userId)
-      }
-      return this.authUser
-    },
-    posts() {
-      if (this.isOnlyStartedThreads) {
-        return this.user?.threads.map(thread => this.post(thread.firstPostId))
-      }
-      return this.user?.posts
-    },
-    lastPostId() {
-      if (this.posts?.length < 1) return null
-      return this.posts?.at(-1).id
-    }
-  },
-  methods: {
-    ...mapActions({
-      fetchAuthUserPosts: 'auth/fetchAuthUserPosts',
-      fetchThreadsByIds: 'threads/fetchThreadsByIds',
-      fetchForumsByIds: 'forums/fetchForumsByIds',
-      fetchUsersByIds: 'users/fetchUsersByIds',
-      fetchUserById: 'users/fetchUserById'
-    }),
-    reverseArray(array) {
-      return array.reverse()
-    },
-    async fetchUserData() {
-      const threadIds = this.posts.map((post) => post.threadId)
-      if (threadIds.length > 0) {
-        const threads = await this.fetchThreadsByIds({ ids: threadIds })
-        const forumIds = threads.map((thread) => thread.forumId)
-        const threadAuthorIds = threads.map((thread) => thread.userId)
-        await this.fetchForumsByIds({ ids: forumIds })
-        await this.fetchUsersByIds({ ids: threadAuthorIds })
-      }
-    },
-    async fetchUserNextPosts() {
-      console.log('fetchUserNextPosts', this.lastVisiblePost);
-      this.lastVisiblePost = await this.fetchAuthUserPosts({ limitNumber: 2, lastPost: this.lastVisiblePost, paginate: true })
-    }
-  },
-  watch: {
-    allPostsLoaded() {
-      if (this.posts.length) {
-        console.log(this.user.postsCount === this.posts.length)
-      }
-    }
-  },
-  async created() {
-    if (this.isUnauthenticatedUser) {
-      await this.fetchUserById({ id: this.userId })
-      await this.fetchUserPosts()
-    }
-    else {
-      this.lastVisiblePost = await this.fetchAuthUserPosts({ paginate: true })
-    }
-    await this.fetchUserData()
+const { isPageReady, pageLoaded } = usePageLoadStatus()
 
-    this.pageLoadStatus_pageLoaded()
+const props = defineProps({
+  userId: { type: String, required: false, default: null },
+  edit: { type: Boolean, default: false }
+})
+const { userId, edit } = toRefs(props)
+const emit = defineEmits(['pageReady'])
+
+const isOnlyStartedThreads = ref(false)
+const lastVisiblePost = ref(null)
+
+const { authUser } = mapGetters('auth')
+const { user: getUser } = mapGetters('users')
+const { fetchAuthUserPosts } = mapActions('auth')
+const { fetchThreadsByIds } = mapActions('threads')
+const { fetchForumsByIds } = mapActions('forums')
+const { fetchUserById, fetchUsersByIds, fetchUserPostsByQuery } =
+  mapActions('users')
+
+const isUnauthenticatedUser = computed(
+  () => !!userId.value && userId.value !== authUser.value.id
+)
+
+const user = computed(() => {
+  if (isUnauthenticatedUser.value) {
+    return getUser.value(userId.value)
+  }
+  return authUser.value
+})
+
+const posts = computed(() => user.value.posts)
+
+const isAllPostLoaded = computed(
+  () => user.value.postsCount === posts.value.length
+)
+
+async function fetchUserActivity() {
+  const options = { paginate: true }
+  if (lastVisiblePost.value) options.lastPost = lastVisiblePost.value
+
+  if (isUnauthenticatedUser.value) {
+    if (!user.value) {
+      await fetchUserById({ id: userId.value })
+    }
+    options.userId = userId.value
+    lastVisiblePost.value = await fetchUserPostsByQuery({
+      userId: userId.value,
+      additionalContraints: options
+    })
+    console.log(lastVisiblePost.value)
+  } else {
+    lastVisiblePost.value = await fetchAuthUserPosts({ ...options })
+  }
+  await fetchRelatedData()
+}
+
+const fetchUserNextPosts = async () => {
+  await fetchUserActivity()
+}
+
+async function fetchRelatedData() {
+  const threadIds = posts.value.map((post) => post.threadId)
+  if (threadIds.length) {
+    const threads = await fetchThreadsByIds({ ids: threadIds })
+    const forumIds = threads.map((thread) => thread.forumId)
+    const threadAuthorIds = threads.map((thread) => thread.userId)
+    await fetchForumsByIds({ ids: forumIds })
+    await fetchUsersByIds({ ids: threadAuthorIds })
   }
 }
+
+const initFetch = async () => {
+  await fetchUserActivity()
+  pageLoaded(emit)
+}
+initFetch()
 </script>
 
 <style>

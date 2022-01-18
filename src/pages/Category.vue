@@ -1,61 +1,63 @@
 <template>
   <div class="flex flex-col flex-wrap sm:flex-row">
-    <ForumList v-if="pageLoadStatus_pageReady" :categoryName="category.name" :forums="forums" />
+    <ForumList
+      v-if="isPageReady"
+      :category-name="category.name"
+      :forums="forums"
+    />
   </div>
 </template>
 
-<script>
+<script setup>
 import ForumList from '@/components/ForumList.vue'
-import { mapActions, mapGetters } from 'vuex'
-import { pageLoadStatus } from '@/mixins'
+import { mapActions, mapGetters } from '@/helpers'
+import usePageLoadStatus from '@/composables/usePageLoadStatus'
+import { computed, toRefs } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-  props: {
-    id: {
-      type: String,
-      required: true
-    }
-  },
-  mixins: [pageLoadStatus],
-  components: { ForumList },
-  computed: {
-    ...mapGetters({ getCategory: 'categories/category', getForum: 'forums/forum' }),
-    category() {
-      return this.getCategory(this.id)
-    },
-    forums() {
-      if (!this.category) return []
-      return this.category.forums.map((forumId) => this.getForum(forumId))
-    }
-  },
-  methods: {
-    ...mapActions({
-      fetchCategoryById: 'categories/fetchCategoryById',
-      fetchForumsByIds: 'forums/fetchForumsByIds',
-      fetchThreadsByIds: 'threads/fetchThreadsByIds',
-      fetchUsersByIds: 'users/fetchUsersByIds'
-    })
-  },
-  async created() {
-    const category = await this.fetchCategoryById({ id: this.id })
+const router = useRouter()
+const { isPageReady, pageLoaded } = usePageLoadStatus()
+const emit = defineEmits(['pageReady'])
 
-    if (category.forums.length) {
-      const forums = await this.fetchForumsByIds({ ids: category.forums })
+const props = defineProps({ id: { type: String, required: true } })
+const { id } = toRefs(props)
+
+const { category: getCategory } = mapGetters('categories')
+const { forum: getForum } = mapGetters('forums')
+const category = computed(() => getCategory.value(id.value))
+const forums = computed(() => {
+  if (!category.value) return []
+  return category.value.forums.map((forumId) => getForum.value(forumId))
+})
+
+const { fetchCategoryById } = mapActions('categories')
+const { fetchForumsByIds } = mapActions('forums')
+const { fetchThreadsByIds } = mapActions('threads')
+const { fetchUsersByIds } = mapActions('users')
+
+async function initFetch() {
+  try {
+    const thisCategory = await fetchCategoryById({ id: id.value })
+
+    if (thisCategory.forums.length) {
+      const forums = await fetchForumsByIds({ ids: thisCategory.forums })
       const lastThreadIds = forums
         .map((f) => f.threads?.at(-1))
         .filter((id) => id)
 
       if (lastThreadIds.length) {
-        const threads = await this.fetchThreadsByIds({ ids: lastThreadIds })
+        const threads = await fetchThreadsByIds({ ids: lastThreadIds })
         const userIds = threads.map((thread) => thread.userId)
-        await this.fetchUsersByIds({ ids: userIds })
+        await fetchUsersByIds({ ids: userIds })
       }
     }
-
-    this.pageLoadStatus_pageLoaded()
+    pageLoaded(emit)
+  } catch (error) {
+    router.push({ name: 'NotFound' })
   }
 }
+
+initFetch()
 </script>
 
-<style>
-</style>
+<style></style>

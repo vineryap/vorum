@@ -1,143 +1,139 @@
-<template >
-    <div class="w-full" v-if="pageLoadStatus_pageReady">
-        <the-breadcrumbs :forumId="id" />
-        <div class="flex flex-col flex-wrap justify-between sm:flex-row mb-4">
-            <div class="forum-details">
-                <h1>{{ forum.name }}</h1>
-                <p class="text-lead">{{ forum.description }}</p>
-            </div>
-            <div class="flex sm:self-end mt-5 sm:mt-0">
-                <router-link
-                    :to="{ name: 'ThreadCreate', params: { forumId: forum.id } }"
-                    class="btn-green btn-small"
-                >Start a thread</router-link>
-            </div>
-        </div>
-
-        <ThreadList :threads="threads" />
-        <div class="flex justify-center">
-            <v-pagination
-                v-if="totalPages"
-                v-model="pagination.page"
-                :pages="totalPages"
-                :active-color="pagination.activeColor"
-            />
-        </div>
+<template>
+  <div v-if="isPageReady" class="w-full">
+    <the-breadcrumbs :forum-id="id" />
+    <div class="flex flex-col flex-wrap justify-between sm:flex-row mb-4">
+      <div class="forum-details">
+        <h1>{{ forum.name }}</h1>
+        <p class="text-lead">{{ forum.description }}</p>
+      </div>
+      <div class="flex sm:self-end mt-5 sm:mt-0">
+        <router-link
+          :to="{ name: 'ThreadCreate', params: { forumId: forum.id } }"
+          class="btn-green btn-small"
+          >Start a thread</router-link
+        >
+      </div>
     </div>
+
+    <ThreadList :threads="threads" />
+    <div class="flex justify-center">
+      <v-pagination
+        v-if="totalPages"
+        v-model="pagination.page"
+        :pages="totalPages"
+        :active-color="pagination.activeColor"
+      />
+    </div>
+  </div>
 </template>
 
-<script>
+<script setup>
+import usePageLoadStatus from '@/composables/usePageLoadStatus'
+import { computed, reactive, toRefs, watch } from 'vue'
+import { mapActions, mapGetters, mapState } from '@/helpers'
+import { useRoute, useRouter } from 'vue-router'
 import TheBreadcrumbs from '@/components/TheBreadcrumbs.vue'
-import { mapActions, mapGetters, mapState } from 'vuex'
-import { pageLoadStatus } from '@/mixins'
 import ThreadList from '@/components/ThreadList.vue'
 
-export default {
-    components: {
-        TheBreadcrumbs,
-        ThreadList
-    },
-    props: {
-        id: {
-            type: String,
-            required: true
-        }
-    },
-    mixins: [pageLoadStatus],
-    data() {
-        return {
-            pagination: {
-                page: parseInt(this.$route.query.page) || 1,
-                perPage: 5,
-                activeColor: '#57ad8d'
-            }
-        }
-    },
-    methods: {
-        ...mapActions({
-            fetchCategoryById: 'categories/fetchCategoryById',
-            fetchForumById: 'forums/fetchForumById',
-            fetchForumsByIds: 'forums/fetchForumsByIds',
-            fetchThreadsByPage: 'threads/fetchThreadsByPage',
-            fetchPostsByIds: 'posts/fetchPostsByIds',
-            fetchUsersByIds: 'users/fetchUsersByIds'
-        }),
-        async populatePage(forumThreadIds) {
-            const threads = await this.fetchThreadsByPage({
-                ids: forumThreadIds,
-                page: this.pagination.page,
-                perPage: this.pagination.perPage
-            })
-            const lastPostIds = threads.map((thread) => thread.lastPostId)
-            const lastPosts = await this.fetchPostsByIds({ ids: lastPostIds })
-            const lastPostUserIds = lastPosts.map((post) => post.userId)
-            const threadsUserIds = threads.map((thread) => thread.userId)
-            const userIds = [...lastPostUserIds, ...threadsUserIds]
-            await this.fetchUsersByIds({ ids: userIds })
-        }
-    },
-    computed: {
-        ...mapGetters({
-            getCategory: 'categories/category',
-            getForum: 'forums/forum',
-            getThread: 'threads/thread'
-        }),
-        ...mapState({ allThreads: (state) => state.threads.items }),
-        forum() {
-            return this.getForum(this.id)
-        },
-        subForum() {
-            if (!this.forum) return null
-            return null
-            // return this.getCategory(this.forum.categoryId)
-        },
-        threads() {
-            if (!this.allThreads.length) return []
-            return this.allThreads
-                .filter((thread) => thread.forumId === this.forum.id)
-                .map((thread) => this.getThread(thread.id))
-        },
-        forums() {
-            if (!this.subForum) return []
-            return this.subForum.forums?.map((forumId) => this.getForum(forumId))
-        },
-        forumThreadsCount() {
-            return this.forum.threads?.length || 0
-        },
-        totalPages() {
-            if (!this.forumThreadsCount) return 0
-            return Math.ceil(this.forumThreadsCount / this.pagination.perPage)
-        }
-    },
-    watch: {
-        'pagination.page'(page) {
-            this.$router.push({ query: { page: page } })
-            // await this.populatePage(this.forum.threads)
-        }
-    },
-    async created() {
-        const forum = await this.fetchForumById({ id: this.id })
+const router = useRouter()
+const route = useRoute()
+const { isPageReady, pageLoaded } = usePageLoadStatus()
+const emit = defineEmits(['pageReady'])
 
-        // const category = await this.fetchCategoryById({ id: forum.categoryId })
+const props = defineProps({ id: { type: String, required: true } })
+const { id } = toRefs(props)
 
-        // const forums = await this.fetchForumsByIds({ ids: category.forums })
+const pagination = reactive({
+  page: parseInt(route.query.page) || 1,
+  perPage: 1,
+  activeColor: '#10b981'
+})
 
-        // const forumsThreadIds = forums
-        //   .map((f) => f.threads?.at(-1))
-        //   .filter((id) => id)
+const { items: allThreads } = mapState('threads')
 
-        // const threadIds = [...forumsThreadIds, ...forum.threads]
-        if (forum.threads) {
-            await this.populatePage(forum.threads)
-        }
+// const { fetchCategoryById } = mapActions('categories')
+const { fetchForumById } = mapActions('forums')
+// const { fetchForumsByIds } = mapActions('forums')
+const { fetchThreadsByPage } = mapActions('threads')
+const { fetchPostsByIds } = mapActions('posts')
+const { fetchUsersByIds } = mapActions('users')
 
-        this.pageLoadStatus_pageLoaded()
-    }
+async function populatePage(forumThreadIds) {
+  const threads = await fetchThreadsByPage({
+    ids: forumThreadIds,
+    page: pagination.page,
+    perPage: pagination.perPage
+  })
+  const lastPostIds = threads.map((thread) => thread.lastPostId)
+  const lastPosts = await fetchPostsByIds({ ids: lastPostIds })
+  const lastPostUserIds = lastPosts.map((post) => post.userId)
+  const threadsUserIds = threads.map((thread) => thread.userId)
+  const userIds = [...lastPostUserIds, ...threadsUserIds]
+  await fetchUsersByIds({ ids: userIds })
 }
+// const { category: getCategory } = mapGetters('categories')
+const { forum: getForum } = mapGetters('forums')
+const { thread: getThread } = mapGetters('threads')
+const forum = computed(() => {
+  return getForum.value(id.value)
+})
+// const subForum = computed(() => {
+//   if (!forum.value) return null
+// return getCategory.value(forum.value.categoryId)
+// })
+const threads = computed(() => {
+  if (!allThreads.value.length) return []
+  return allThreads.value
+    .filter((thread) => thread.forumId === forum.value.id)
+    .map((thread) => getThread.value(thread.id))
+})
+// const forums = computed(() => {
+//   if (!subForum.value) return []
+//   return subForum.value.forums?.map((forumId) => getForum.value(forumId))
+// })
+const forumThreadsCount = computed(() => {
+  return forum.value.threads?.length || 0
+})
+const totalPages = computed(() => {
+  if (!forumThreadsCount.value) return 0
+  return Math.ceil(forumThreadsCount.value / pagination.perPage)
+})
+
+watch(pagination, ({ page }) => {
+  router.push({ query: { page } })
+})
+
+async function initFetch() {
+  try {
+    const thisForum = await fetchForumById({ id: id.value })
+    // const category = await fetchCategoryById({ id: thisForum.categoryId })
+    // const forums = await fetchForumsByIds({ ids: category.forums })
+    // const forumsThreadIds = forums
+    //   .map((f) => f.threads?.at(-1))
+    //   .filter((id) => id)
+    // const threadIds = [...forumsThreadIds, ...thisForum.threads]
+    if (thisForum.threads) {
+      await populatePage(thisForum.threads)
+    }
+    pageLoaded(emit)
+  } catch (error) {
+    router.push({ name: 'NotFound' })
+  }
+}
+
+initFetch()
 </script>
 
 <style>
-</style>
+.Pagination li .Control {
+  @apply w-6 h-6;
+}
 
-<style>
+.Pagination li .Page {
+  @apply w-7 h-7 rounded-lg;
+}
+
+.Pagination li .Page.Page-active {
+  @apply shadow-md border-none;
+}
 </style>
