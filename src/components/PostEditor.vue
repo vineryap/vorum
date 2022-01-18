@@ -1,9 +1,9 @@
 <template>
   <div class="col-full">
-    <vForm @submit="submit" :key="formKey">
+    <vForm :key="formKey" @submit="submit">
       <base-form-field
         v-model="form.text"
-        :showLabel="false"
+        :show-label="false"
         as="textarea"
         label="Post content"
         name="text"
@@ -12,7 +12,7 @@
         rules="isRequired"
       />
       <div class="form-actions">
-        <button v-if="post.id" @click.prevent="cancel" class="btn-ghost">
+        <button v-if="post.id" class="btn-ghost" @click.prevent="cancel">
           Cancel
         </button>
         <button class="btn-blue">
@@ -23,34 +23,30 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    post: {
-      type: Object,
-      default: () => ({
-        text: ''
-      })
-    }
-  },
-  data () {
-    return {
-      form: { ...this.post },
-      formKey: Date.now()
-    }
-  },
-  methods: {
-    submit () {
-      this.$emit('save', { post: this.form })
-      this.form.text = ''
-      this.formKey = Date.now()
-    },
-    cancel () {
-      this.$emit('cancel')
-    }
+<script setup>
+import { reactive, ref, toRefs } from 'vue'
+
+const emit = defineEmits(['save', 'cancel'])
+const props = defineProps({
+  post: {
+    type: Object,
+    default: () => ({
+      text: ''
+    })
   }
+})
+const { post } = toRefs(props)
+const form = reactive({ ...post.value })
+const formKey = ref(Date.now())
+
+function submit() {
+  emit('save', { post: form })
+  form.text = ''
+  formKey.value = Date.now()
+}
+function cancel() {
+  emit('cancel')
 }
 </script>
 
-<style>
-</style>
+<style></style>

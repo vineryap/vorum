@@ -254,7 +254,7 @@ span.offline {
 }
 
 h1 {
-  @apply text-3xl;
+  @apply text-3xl 2xl:text-4xl;
 }
 
 @media (min-width: 240px) and (max-width: 720px) {
@@ -264,7 +264,7 @@ h1 {
 }
 
 h2 {
-  @apply text-2xl;
+  @apply text-2xl 2xl:text-3xl;
 }
 
 @media (min-width: 240px) and (max-width: 720px) {

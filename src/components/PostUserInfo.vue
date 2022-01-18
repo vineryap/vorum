@@ -1,12 +1,29 @@
 <template>
-  <div class="user-info" v-if="user">
-    <a href="#" class="user-name capitalize">{{ user.username }}</a>
-    <a href="#" class="mr-2.5">
-      <base-avatar-image class="avatar-large" :src="user.avatar" :alt="user.username + ' avatar'" />
-    </a>
-    <p
-      class="desktop-only text-small"
-    >{{ `${user.postsCount} ${formatNoun(user.postsCount, 'post', 'posts')}` }}</p>
+  <div v-if="user" class="user-info">
+    <router-link
+      :to="{
+        name: authUser.id === user.id ? 'Profile' : 'UserProfile',
+        params: authUser.id === user.id ? null : { userId: user.id }
+      }"
+      class="user-name"
+      >{{ user.username }}</router-link
+    >
+    <router-link
+      :to="{
+        name: authUser.id === user.id ? 'Profile' : 'UserProfile',
+        params: authUser.id === user.id ? null : { userId: user.id }
+      }"
+      class="mr-2.5"
+    >
+      <base-avatar-image
+        class="avatar-large shadow"
+        :src="user.avatar"
+        :alt="user.username + ' avatar'"
+      />
+    </router-link>
+    <p class="desktop-only text-small">
+      {{ `${user.postsCount} ${formatNoun(user.postsCount, 'post', 'posts')}` }}
+    </p>
     <p class="desktop-only text-small">
       {{
         `${user.threadsCount} ${formatNoun(
@@ -16,31 +33,20 @@
         )}`
       }}
     </p>
-    <span class="online desktop-only">online</span>
+    <!-- <span class="online desktop-only">online</span> -->
   </div>
 </template>
 
-<script>
-import { formatNoun } from '@/helpers'
-import { mapGetters } from 'vuex'
+<script setup>
+import { formatNoun, mapGetters } from '@/helpers'
+import { computed, toRefs } from 'vue'
 
-export default {
-  props: {
-    id: {
-      type: String,
-      required: true
-    }
-  },
-  computed: {
-    ...mapGetters({ getUser: 'users/user' }),
-    user() {
-      return this.getUser(this.id)
-    }
-  },
-  methods: {
-    formatNoun
-  }
-}
+const props = defineProps({ id: { type: String, required: true } })
+const { id } = toRefs(props)
+
+const { authUser } = mapGetters('auth')
+const { user: getUser } = mapGetters('users')
+const user = computed(() => getUser.value(id.value))
 </script>
 
 <style scoped>

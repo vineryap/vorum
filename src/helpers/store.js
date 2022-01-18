@@ -18,7 +18,7 @@ const mapGetters = (module) => {
     Object.keys(store.getters).map((getter) =>
       module !== undefined && getter.startsWith(module)
         ? [
-            getter.substring(module.length + 1),
+            getter.substr(module.length + 1),
             computed(() => store.getters[getter])
           ]
         : [getter, computed(() => store.getters[getter])]

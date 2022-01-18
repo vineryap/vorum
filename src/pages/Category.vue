@@ -1,10 +1,11 @@
 <template>
   <div class="flex flex-col flex-wrap sm:flex-row">
     <ForumList
-      v-if="isPageReady"
+      v-if="isPageReady && !isError"
       :category-name="category.name"
       :forums="forums"
     />
+    <base-error-fallback v-else />
   </div>
 </template>
 
@@ -12,13 +13,14 @@
 import ForumList from '@/components/ForumList.vue'
 import { mapActions, mapGetters } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
-import { computed, toRefs } from 'vue'
+import { computed, toRefs, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 const emit = defineEmits(['pageReady'])
 
+const isError = ref(false)
 const props = defineProps({ id: { type: String, required: true } })
 const { id } = toRefs(props)
 
@@ -36,9 +38,11 @@ const { fetchThreadsByIds } = mapActions('threads')
 const { fetchUsersByIds } = mapActions('users')
 
 async function initFetch() {
+  const thisCategory = await fetchCategoryById({ id: id.value })
+  if (!thisCategory) {
+    router.push({ name: 'NotFound' })
+  }
   try {
-    const thisCategory = await fetchCategoryById({ id: id.value })
-
     if (thisCategory.forums.length) {
       const forums = await fetchForumsByIds({ ids: thisCategory.forums })
       const lastThreadIds = forums
@@ -53,7 +57,7 @@ async function initFetch() {
     }
     pageLoaded(emit)
   } catch (error) {
-    router.push({ name: 'NotFound' })
+    isError.value = true
   }
 }
 

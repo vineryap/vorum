@@ -2,8 +2,8 @@
   <ForumList
     v-for="(category, index) in categories"
     :key="index"
-    :categoryId="category.id"
-    :categoryName="category.name"
+    :category-id="category.id"
+    :category-name="category.name"
     :forums="getForums(category.forums)"
   />
 </template>
@@ -13,14 +13,14 @@ import { mapGetters } from 'vuex'
 import ForumList from './ForumList.vue'
 
 export default {
+  components: {
+    ForumList
+  },
   props: {
     categories: {
       type: Array,
       required: true
     }
-  },
-  components: {
-    ForumList,
   },
   computed: {
     ...mapGetters({ getForum: 'forums/forum' })
@@ -34,5 +34,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isPageReady" class="w-full">
+  <div v-if="isPageReady && !isError" class="w-full">
     <the-breadcrumbs :forum-id="id" />
     <div class="flex flex-col flex-wrap justify-between sm:flex-row mb-4">
       <div class="forum-details">
@@ -18,18 +18,19 @@
     <ThreadList :threads="threads" />
     <div class="flex justify-center">
       <v-pagination
-        v-if="totalPages"
+        v-if="totalPages > 1"
         v-model="pagination.page"
         :pages="totalPages"
         :active-color="pagination.activeColor"
       />
     </div>
   </div>
+  <base-error-fallback v-else />
 </template>
 
 <script setup>
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
-import { computed, reactive, toRefs, watch } from 'vue'
+import { computed, reactive, toRefs, watch, ref } from 'vue'
 import { mapActions, mapGetters, mapState } from '@/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import TheBreadcrumbs from '@/components/TheBreadcrumbs.vue'
@@ -42,10 +43,11 @@ const emit = defineEmits(['pageReady'])
 
 const props = defineProps({ id: { type: String, required: true } })
 const { id } = toRefs(props)
+const isError = ref(false)
 
 const pagination = reactive({
   page: parseInt(route.query.page) || 1,
-  perPage: 1,
+  perPage: 5,
   activeColor: '#10b981'
 })
 
@@ -58,19 +60,6 @@ const { fetchThreadsByPage } = mapActions('threads')
 const { fetchPostsByIds } = mapActions('posts')
 const { fetchUsersByIds } = mapActions('users')
 
-async function populatePage(forumThreadIds) {
-  const threads = await fetchThreadsByPage({
-    ids: forumThreadIds,
-    page: pagination.page,
-    perPage: pagination.perPage
-  })
-  const lastPostIds = threads.map((thread) => thread.lastPostId)
-  const lastPosts = await fetchPostsByIds({ ids: lastPostIds })
-  const lastPostUserIds = lastPosts.map((post) => post.userId)
-  const threadsUserIds = threads.map((thread) => thread.userId)
-  const userIds = [...lastPostUserIds, ...threadsUserIds]
-  await fetchUsersByIds({ ids: userIds })
-}
 // const { category: getCategory } = mapGetters('categories')
 const { forum: getForum } = mapGetters('forums')
 const { thread: getThread } = mapGetters('threads')
@@ -103,22 +92,39 @@ watch(pagination, ({ page }) => {
   router.push({ query: { page } })
 })
 
+async function fetchRelatedData(forumThreadIds) {
+  const threads = await fetchThreadsByPage({
+    ids: forumThreadIds,
+    page: pagination.page,
+    perPage: pagination.perPage
+  })
+  const lastPostIds = threads.map((thread) => thread.lastPostId)
+  const lastPosts = await fetchPostsByIds({ ids: lastPostIds })
+  const lastPostUserIds = lastPosts.map((post) => post.userId)
+  const threadsUserIds = threads.map((thread) => thread.userId)
+  const userIds = [...lastPostUserIds, ...threadsUserIds]
+  await fetchUsersByIds({ ids: userIds })
+}
+
 async function initFetch() {
-  try {
-    const thisForum = await fetchForumById({ id: id.value })
-    // const category = await fetchCategoryById({ id: thisForum.categoryId })
-    // const forums = await fetchForumsByIds({ ids: category.forums })
-    // const forumsThreadIds = forums
-    //   .map((f) => f.threads?.at(-1))
-    //   .filter((id) => id)
-    // const threadIds = [...forumsThreadIds, ...thisForum.threads]
-    if (thisForum.threads) {
-      await populatePage(thisForum.threads)
-    }
-    pageLoaded(emit)
-  } catch (error) {
+  const thisForum = await fetchForumById({ id: id.value })
+  if (!thisForum) {
     router.push({ name: 'NotFound' })
   }
+  // const category = await fetchCategoryById({ id: thisForum.categoryId })
+  // const forums = await fetchForumsByIds({ ids: category.forums })
+  // const forumsThreadIds = forums
+  //   .map((f) => f.threads?.at(-1))
+  //   .filter((id) => id)
+  // const threadIds = [...forumsThreadIds, ...thisForum.threads]
+  try {
+    if (thisForum.threads) {
+      await fetchRelatedData(thisForum.threads)
+    }
+  } catch (error) {
+    isError.value = true
+  }
+  pageLoaded(emit)
 }
 
 initFetch()

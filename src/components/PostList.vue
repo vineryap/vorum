@@ -3,7 +3,7 @@
     <div v-if="post" class="post">
       <post-user-info :id="post.userId" />
       <div class="post-content">
-        <div>
+        <div class="w-full">
           <post-editor
             v-if="editing === post.id"
             :post="post"
@@ -12,83 +12,61 @@
           />
           <p v-else>{{ post.text }}</p>
         </div>
-        <a
-          v-if="post.userId === $store.state.auth.authId"
-          @click.prevent="toggleEditMode(post.id)"
-          style="margin-left: auto; padding-left: 10px"
-          class="link-unstyled"
-          title="Edit post"
+        <div
+          class="ml-auto pl-3 mb-1 xl:mb-0 flex flex-row space-x-3 xl:space-y-0 items-end xl:flex-col xl:space-y-2"
         >
-          <fa-icon icon="pencil-alt" />
-        </a>
+          <a
+            v-if="post.userId === $store.state.auth.authId"
+            class="link-unstyled"
+            title="Edit post"
+            @click.prevent="toggleEditMode(post.id)"
+          >
+            <IconFaPencil class="w-4" />
+          </a>
+          <a
+            v-if="post.userId === $store.state.auth.authId && index > 0"
+            class="link-unstyled hover:text-red-500"
+            title="Edit post"
+            @click.prevent="deletePostHandler(post)"
+          >
+            <IconFaTrash class="w-4" />
+          </a>
+        </div>
       </div>
-      <!-- <div class="flex justify-between w-full items-end mt-10 pt-2 text-gray-500 items-center"> -->
+
       <div v-if="post.publishedAt" class="post-date">
         <base-time :timestamp="post.publishedAt" />
       </div>
-      <div class="reactions" v-if="post.reactions">
-        <ul>
-          <li>💡</li>
-          <li>❤️</li>
-          <li>👎</li>
-          <li>👍</li>
-          <li>👌</li>
-        </ul>
-
-        <button class="btn-xsmall" v-for="(item, index) in post.reactions" :key="index">
-          <span class="emoji">{{ index }}</span>
-          ️ {{ index.length }}
-        </button>
-        <button class="btn-xsmall">
-          👍
-          <i class="fa fa-smile-o emoji"></i>
-        </button>
-      </div>
-      <div class="reactions" v-else>
-        <button class="btn-xsmall">
-          👍
-          <i class="fa fa-smile-o emoji"></i>
-        </button>
-      </div>
-      <!-- </div> -->
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import IconFaPencil from '~icons/fa-solid/pencil-alt'
+import IconFaTrash from '~icons/fa-solid/trash'
 import PostEditor from './PostEditor.vue'
 import PostUserInfo from './PostUserInfo.vue'
-import { mapGetters, mapActions } from 'vuex'
+import { mapActions } from '@/helpers'
+import { ref, toRefs } from 'vue'
 
-export default {
-  props: {
-    posts: {
-      type: Array,
-      required: true
-    }
-  },
-  data() {
-    return {
-      editing: null
-    }
-  },
-  components: {
-    PostUserInfo,
-    PostEditor
-  },
-  computed: {
-    ...mapGetters({ authUser: 'auth/authUser' })
-  },
-  methods: {
-    ...mapActions({ updatePost: 'posts/updatePost' }),
-    toggleEditMode(id) {
-      this.editing = id === this.editing ? null : id
-    },
-    handleUpdate(event) {
-      this.updatePost(event.post)
-      this.editing = null
-    }
-  }
+const props = defineProps({ posts: { type: Array, required: true } })
+const { posts } = toRefs(props)
+const editing = ref(null)
+
+const { updatePost, deletePost } = mapActions('posts')
+function toggleEditMode(id) {
+  editing.value = id === editing.value ? null : id
+}
+function handleUpdate(event) {
+  updatePost(event.post)
+  editing.value = null
+}
+
+async function deletePostHandler(post) {
+  const confirmed = confirm(
+    'This action is irreversible. Continue to delete post?'
+  )
+  if (confirmed) await deletePost({ post })
 }
 </script>
 
@@ -156,7 +134,7 @@ export default {
   left: -25px;
   font-size: 42px;
   font-family: FontAwesome;
-  content: "\f10e";
+  content: '\f10e';
   color: #263959;
 }
 
@@ -208,7 +186,7 @@ export default {
   left: -20px;
   font-size: 42px;
   font-family: FontAwesome;
-  content: "\f10e";
+  content: '\f10e';
   color: #263959;
 }
 
@@ -267,7 +245,7 @@ export default {
   left: -25px;
   font-size: 42px;
   font-family: FontAwesome;
-  content: "\f10e";
+  content: '\f10e';
   color: #263959;
 }
 

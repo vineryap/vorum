@@ -12,14 +12,18 @@
             />
             <div class="avatar-upload-overlay">
               <base-spinner v-if="uploadingImage" color="#ffffff" />
-              <fa-icon icon="camera" size="3x" :style="{ color: 'white', opacity: '8' }" />
+              <fa-icon
+                icon="camera"
+                size="3x"
+                :style="{ color: 'white', opacity: '8' }"
+              />
             </div>
             <input
               v-show="false"
-              @change="imageUploadHandler"
-              type="file"
               id="avatar"
+              type="file"
               accept="image/*"
+              @change="imageUploadHandler"
             />
           </label>
         </p>
@@ -42,7 +46,7 @@
               previousValue: user.username
             }
           }"
-          extraClass="text-lead text-bold"
+          extra-class="text-lead text-bold"
         />
 
         <base-form-field
@@ -52,7 +56,7 @@
           type="text"
           placeholder="Full Name"
           rules="isRequired"
-          extraClass="text-lead"
+          extra-class="text-lead"
         />
 
         <base-form-field
@@ -110,119 +114,105 @@
           <button type="submit" class="btn-blue">Save</button>
         </div>
       </vForm>
-      <user-reauthenticate
-        v-model="needsReAuth"
-        @reAuthSuccess="onReauthenticated"
-        @reAuthFailed="onReauthenticatedFail"
-      />
     </div>
+    <user-reauthenticate
+      v-model="needsReAuth"
+      @re-auth-success="onReauthenticated"
+      @re-auth-failed="onReauthenticatedFail"
+    />
   </div>
 </template>
 
-<script>
-import { formatNoun } from '@/helpers'
-import { mapActions } from 'vuex'
+<script setup>
+import { formatNoun, mapActions } from '@/helpers'
 import UserProfileCardEditorRandomAvatar from './UserProfileCardEditorRandomAvatar.vue'
 import UserReauthenticate from './UserReauthenticate.vue'
 import useNotifications from '@/composables/useNotifications'
+import { reactive, ref, toRefs } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-  components: { UserProfileCardEditorRandomAvatar, UserReauthenticate },
-  props: {
-    user: {
-      type: Object,
-      required: true
-    }
-  },
-  data() {
-    return {
-      currentUser: { ...this.user },
-      uploadingImage: false,
-      locationOptions: [],
-      needsReAuth: false
-    }
-  },
-  methods: {
-    formatNoun,
-    ...mapActions('users', ['updateUser']),
-    ...mapActions('auth', ['uploadAvatar', 'updateEmail']),
-    addNotification(notification) {
-      const { addNotification } = useNotifications()
-      addNotification({ ...notification })
-    },
-    async loadLocationOptions() {
-      if (this.locationOptions.length) return
-      const url = `${import.meta.env.VITE_REST_COUNTRIES_ENDPOINT}/all`
-      const res = await fetch(url)
-      const data = await res.json()
+const router = useRouter()
+const { addNotification } = useNotifications()
+const props = defineProps({ user: { type: Object, required: true } })
+const { user } = toRefs(props)
 
-      data.sort(function (a, b) {
-        const nameA = a.name.common.toUpperCase() // ignore upper and lowercase
-        const nameB = b.name.common.toUpperCase() // ignore upper and lowercase
-        if (nameA < nameB) return -1
-        if (nameA > nameB) return 1
-        // names must be equal
-        return 0
-      })
+const currentUser = reactive({ ...user.value })
+const uploadingImage = ref(false)
+const locationOptions = ref([])
+const needsReAuth = ref(false)
 
-      this.locationOptions = data
-    },
-    async onReauthenticated() {
-      await this.updateEmail({ email: this.currentUser.email })
-      await this.saveUserData()
-    },
-    async onReauthenticatedFail() {
-      this.addNotification({
-        message: 'Failed confirming account.',
-        timeout: 5000,
-        type: 'error'
-      })
-      this.$router.push({ name: 'Profile' })
-    },
-    async saveUserData() {
-      await this.updateUser(this.currentUser)
-      this.$router.push({ name: 'Profile' })
-      this.addNotification({
-        message: 'User successfully updated',
-        timeout: 3000
-      })
-    },
-    async save() {
-      const emailChanged = this.currentUser.email !== this.user.email
-      if (emailChanged) {
-        this.needsReAuth = true
-      } else {
-        await this.randomAvatarHandler()
-        await this.saveUserData()
-      }
-    },
-    cancel() {
-      this.$router.push({ name: 'Profile' })
-    },
-    async imageUploadHandler(e) {
-      this.uploadingImage = true
-      const file = e.target.files[0]
-      const uploadedImage = await this.uploadAvatar({ file })
-      this.currentUser.avatar = uploadedImage || this.currentUser.avatar
-      this.uploadingImage = false
-    },
-    async randomAvatarHandler() {
-      const isUnsplashImage = this.currentUser.avatar.startsWith(
-        'https://images.unsplash.com/'
-      )
-      if (isUnsplashImage) {
-        const image = await fetch(this.currentUser.avatar)
-        const blob = await image.blob()
-        const filename = 'random'
-        this.currentUser.avatar = await this.uploadAvatar({
-          file: blob,
-          filename
-        })
-      }
-    }
+const { updateUser } = mapActions('users')
+const { uploadAvatar, updateUserEmail } = mapActions('auth')
+async function loadLocationOptions() {
+  if (locationOptions.value.length) return
+  const url = `${import.meta.env.VITE_REST_COUNTRIES_ENDPOINT}/all`
+  const res = await fetch(url)
+  const data = await res.json()
+
+  data.sort(function (a, b) {
+    const nameA = a.name.common.toUpperCase() // ignore upper and lowercase
+    const nameB = b.name.common.toUpperCase() // ignore upper and lowercase
+    if (nameA < nameB) return -1
+    if (nameA > nameB) return 1
+    // names must be equal
+    return 0
+  })
+
+  locationOptions.value = data
+}
+async function onReauthenticated() {
+  await updateUserEmail({ email: currentUser.email })
+  await saveUserData()
+}
+async function onReauthenticatedFail() {
+  addNotification({
+    message: 'onReauthenticatedFail Failed confirming account.',
+    timeout: 5000,
+    type: 'error'
+  })
+  router.push({ name: 'Profile' })
+}
+async function saveUserData() {
+  await updateUser(currentUser)
+  router.push({ name: 'Profile' })
+  addNotification({
+    message: 'User successfully updated',
+    timeout: 3000
+  })
+}
+async function save() {
+  const emailChanged = currentUser.email !== user.value.email
+  if (emailChanged) {
+    needsReAuth.value = true
+  } else {
+    await randomAvatarHandler()
+    await saveUserData()
+  }
+}
+function cancel() {
+  router.push({ name: 'Profile' })
+}
+async function imageUploadHandler(e) {
+  uploadingImage.value = true
+  const file = e.target.files[0]
+  const uploadedImage = await uploadAvatar({ file })
+  currentUser.avatar = uploadedImage || currentUser.avatar
+  uploadingImage.value = false
+}
+async function randomAvatarHandler() {
+  const isUnsplashImage = currentUser.avatar.startsWith(
+    'https://images.unsplash.com/'
+  )
+  if (isUnsplashImage) {
+    const image = await fetch(currentUser.avatar)
+    const blob = await image.blob()
+    const filename = 'random'
+    currentUser.avatar = await uploadAvatar({
+      file: blob,
+      filename
+    })
   }
 }
 </script>
 
-<style>
-</style>
+<style></style>

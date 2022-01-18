@@ -1,5 +1,5 @@
 const ClickOutsideDirective = {
-  mounted (el, binding) {
+  mounted(el, binding) {
     el.__ClickOutsideDirective__ = (event) => {
       if (!(el === event.target || el.contains(event.target))) {
         binding.value(event)
@@ -7,7 +7,7 @@ const ClickOutsideDirective = {
     }
     document.body.addEventListener('click', el.__ClickOutsideDirective__)
   },
-  unmounted (el) {
+  unmounted(el) {
     document.body.removeEventListener('click', el.__ClickOutsideDirective__)
   }
 }

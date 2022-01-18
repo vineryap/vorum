@@ -2,7 +2,7 @@
   <div class="forum-stats desktop-only">
     <hr />
     <ul>
-      <li><i class="fa fa-user-circle-o"></i>47 users online</li>
+      <!-- <li><i class="fa fa-user-circle-o"></i>47 users online</li> -->
       <!-- <li>
         <i class="fa fa-user-o"></i>{{ totalRegisteredUsers }}
         {{ formatNoun(totalRegisteredUsers, 'user', 'users') }} registered
@@ -37,5 +37,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

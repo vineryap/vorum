@@ -26,7 +26,7 @@ const addNotification = ({ message, type, timeout }) => {
   }
 }
 
-export default function useNotifications () {
+export default function useNotifications() {
   return {
     notifications,
     addNotification,

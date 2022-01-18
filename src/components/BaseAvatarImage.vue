@@ -13,7 +13,6 @@ export default {
   methods: {
     imageLoadError(e) {
       e.target.src = '/user_avatar_placeholder.png'
-      // e.target.src = '../assets/img/user_avatar_placeholder.png'
     }
   }
 }

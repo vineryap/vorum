@@ -2,10 +2,10 @@
   <div class="form-group">
     <label v-if="showLabel" :for="name">{{ label }}</label>
     <vField
+      :id="name"
       :name="name"
       :label="label"
-      :modelValue="modelValue"
-      :id="name"
+      :model-value="modelValue"
       class="form-input"
       :class="extraClass"
       v-bind="$attrs"
@@ -24,9 +24,9 @@ export default {
     showLabel: { type: Boolean, default: true },
     modelValue: { type: String, default: '' },
     extraClass: { type: String, default: '' }
-  }
+  },
+  emits: ['modelUpdate']
 }
 </script>
 
-<style>
-</style>
+<style></style>

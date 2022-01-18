@@ -19,18 +19,17 @@ export default {
     }
   },
   computed: {
-    seconds () {
+    seconds() {
       return this.timestamp?.seconds || this.timestamp
     },
-    relativeTimeFormat () {
+    relativeTimeFormat() {
       return dayjs.unix(this.seconds).fromNow()
     },
-    fullDateFormat () {
+    fullDateFormat() {
       return dayjs.unix(this.seconds).format('llll')
     }
   }
 }
 </script>
 
-<style>
-</style>
+<style></style>

@@ -8,10 +8,10 @@
       rules="isRequired"
     />
     <base-form-field
+      v-model="form.content"
       as="textarea"
       name="content"
-      label="content"
-      v-model="form.content"
+      label="Content"
       rows="8"
       cols="140"
       rules="isRequired"
@@ -39,7 +39,7 @@ export default {
       required: false
     }
   },
-  data () {
+  data() {
     return {
       form: {
         title: this.title,
@@ -48,12 +48,26 @@ export default {
     }
   },
   computed: {
-    isEdit () {
+    isEdit() {
       return !!this.title
     }
   },
+  watch: {
+    form: {
+      handler() {
+        if (
+          this.form.title !== this.title ||
+          this.form.content !== this.content
+        ) {
+          // a dirty form is a form with unsaved changes.
+          this.$emit('dirty')
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
-    async save () {
+    async save() {
       const formData = { ...this.form }
       const title = formData.title.trim()
       const content = formData.content.trim()
@@ -68,27 +82,12 @@ export default {
       }
       alert('Title and content must be filled.')
     },
-    cancel () {
+    cancel() {
       this.$emit('clean')
       this.$emit('cancel')
-    }
-  },
-  watch: {
-    form: {
-      handler () {
-        if (
-          this.form.title !== this.title ||
-          this.form.content !== this.content
-        ) {
-          // a dirty form is a form with unsaved changes.
-          this.$emit('dirty')
-        }
-      },
-      deep: true
     }
   }
 }
 </script>
 
-<style>
-</style>
+<style></style>

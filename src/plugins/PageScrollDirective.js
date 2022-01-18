@@ -1,5 +1,5 @@
 const PageScrollDirective = {
-  mounted (el, binding) {
+  mounted(el, binding) {
     el.__PageScrollDirectiveHandler__ = () => {
       if (binding.instance.showMobileNavMenu) {
         binding.value()
@@ -9,7 +9,7 @@ const PageScrollDirective = {
       passive: true
     })
   },
-  unmounted (el) {
+  unmounted(el) {
     document.removeEventListener('scroll', el.__PageScrollDirectiveHandler__)
   }
 }

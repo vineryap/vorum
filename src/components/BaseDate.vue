@@ -19,15 +19,14 @@ export default {
     }
   },
   computed: {
-    seconds () {
+    seconds() {
       return this.timestamp?.seconds || this.timestamp
     },
-    fullDateFormat () {
+    fullDateFormat() {
       return dayjs.unix(this.seconds).format('ll')
     }
   }
 }
 </script>
 
-<style>
-</style>
+<style></style>

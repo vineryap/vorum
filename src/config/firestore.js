@@ -1,7 +1,5 @@
 import firebaseApp from './firebase'
-import { initializeFirestore, CACHE_SIZE_UNLIMITED } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore'
 
-const firestoreDb = initializeFirestore(firebaseApp, {
-  cacheSizeBytes: CACHE_SIZE_UNLIMITED
-})
+const firestoreDb = getFirestore(firebaseApp)
 export default firestoreDb

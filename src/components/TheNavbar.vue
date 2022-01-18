@@ -1,5 +1,9 @@
 <template>
-  <div class="z-10" v-click-outside="closeMobileNavMenu" v-page-scroll="closeMobileNavMenu">
+  <div
+    v-click-outside="closeMobileNavMenu"
+    v-page-scroll="closeMobileNavMenu"
+    class="z-10"
+  >
     <nav class="bg-white dark:bg-gray-800 shadow">
       <div class="max-w-7xl mx-auto px-8">
         <div class="flex items-center justify-between h-16">
@@ -7,14 +11,13 @@
             <router-link
               :to="{ name: 'Home' }"
               class="flex-shrink-0 text-gray-800 font-semibold font-heading text-2xl"
-              href="/"
-            >VORUM</router-link>
+              >VORUM</router-link
+            >
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
                 <router-link
                   :to="{ name: 'Home' }"
                   class="inline-flex items-center space-x-1 text-gray-800 hover:text-gray-500 dark:hover:text-white px-3 py-2 rounded-md font-medium"
-                  href="/#"
                 >
                   <IconFaHome />
                   <span>Home</span>
@@ -36,9 +39,9 @@
                     </a>
                   </div>
                   <div
-                    @mouseleave="closeDropdown"
                     class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5"
                     :class="{ hidden: !showDropdown }"
+                    @mouseleave="closeDropdown"
                   >
                     <div
                       class="py-1"
@@ -56,9 +59,9 @@
                         </span>
                       </router-link>
                       <a
-                        @click.prevent="signOut"
                         class="block block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
                         role="menuitem"
+                        @click.prevent="signOut"
                       >
                         <span class="flex flex-col">
                           <span>Logout</span>
@@ -93,19 +96,23 @@
           <a
             class="text-gray-300 hover:text-gray-800 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
             href="/#"
-          >Home</a>
+            >Home</a
+          >
           <a
             class="text-gray-800 dark:text-white block px-3 py-2 rounded-md text-base font-medium"
             href="/#"
-          >Gallery</a>
+            >Gallery</a
+          >
           <a
             class="text-gray-300 hover:text-gray-800 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
             href="/#"
-          >Content</a>
+            >Content</a
+          >
           <a
             class="text-gray-300 hover:text-gray-800 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
             href="/#"
-          >Contact</a>
+            >Contact</a
+          >
         </div>
       </div>
     </nav>
@@ -127,6 +134,11 @@ export default {
   computed: {
     ...mapGetters({ authUser: 'auth/authUser' })
   },
+  created() {
+    this.$router.beforeEach(() => {
+      this.showMobileNavMenu = false
+    })
+  },
   methods: {
     ...mapActions({ signOutUser: 'auth/signOut' }),
     toggleDropdown() {
@@ -145,13 +157,7 @@ export default {
       await this.signOutUser()
       this.$router.push({ name: 'Home' })
     }
-  },
-  created() {
-    this.$router.beforeEach(() => {
-      this.showMobileNavMenu = false
-    })
   }
 }
 </script>
-<style>
-</style>
+<style></style>

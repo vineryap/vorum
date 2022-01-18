@@ -20,7 +20,7 @@ export default {
       default: '#333'
     }
   },
-  data () {
+  data() {
     return {
       spinnerColor: this.color
     }

@@ -1,6 +1,7 @@
 <template>
   <div class="flex flex-col flex-wrap sm:flex-row">
-    <category-list v-if="isPageReady" :categories="categories" />
+    <category-list v-if="isPageReady && !isError" :categories="categories" />
+    <base-error-fallback v-else />
   </div>
 </template>
 
@@ -8,11 +9,12 @@
 import CategoryList from '@/components/CategoryList.vue'
 import { mapState, mapActions } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
-import { defineEmits } from 'vue'
+import { defineEmits, ref } from 'vue'
 
 const emit = defineEmits(['pageReady'])
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 
+const isError = ref(false)
 const { items: categories } = mapState('categories')
 const { fetchCategories } = mapActions('categories')
 const { fetchForumsByIds } = mapActions('forums')
@@ -20,13 +22,19 @@ const { fetchThreadsByIds } = mapActions('threads')
 const { fetchUsersByIds } = mapActions('users')
 
 const initFetch = async () => {
-  const allCategories = await fetchCategories()
-  const forumIds = allCategories.map((category) => category.forums).flat()
-  const forums = await fetchForumsByIds({ ids: forumIds })
-  const lastThreadIds = forums.map((f) => f.threads?.at(-1)).filter((id) => id)
-  const threads = await fetchThreadsByIds({ ids: lastThreadIds })
-  const userIds = threads.map((thread) => thread.userId)
-  await fetchUsersByIds({ ids: userIds })
+  try {
+    const allCategories = await fetchCategories()
+    const forumIds = allCategories.map((category) => category.forums).flat()
+    const forums = await fetchForumsByIds({ ids: forumIds })
+    const lastThreadIds = forums
+      .map((f) => f.threads?.at(-1))
+      .filter((id) => id)
+    const threads = await fetchThreadsByIds({ ids: lastThreadIds })
+    const userIds = threads.map((thread) => thread.userId)
+    await fetchUsersByIds({ ids: userIds })
+  } catch (error) {
+    isError.value = true
+  }
   pageLoaded(emit)
 }
 

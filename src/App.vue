@@ -9,32 +9,33 @@ const { fetchAuthUser } = mapActions('auth')
 const router = useRouter()
 const showPage = ref(false)
 
-NProgress.configure({ showSpinner: false })
-
-router.beforeEach(() => {
-  showPage.value = false
-  NProgress.start()
-})
-
 function onPageReady() {
   showPage.value = true
   NProgress.done()
 }
-const initFetch = async () => {
+async function initFetch() {
   await fetchAuthUser()
+  NProgress.configure({ showSpinner: false })
+
+  router.beforeEach(() => {
+    showPage.value = false
+    NProgress.start()
+  })
 }
 initFetch()
 </script>
 
 <template>
   <base-layout>
-    <router-view
-      v-show="showPage"
-      :key="`${$route.path}${JSON.stringify($route.query)}`"
-      @page-ready="onPageReady"
-    />
-    <base-spinner v-show="!showPage" />
-    <base-notifications />
+    <div class="min-h-screen pt-4 pb-24 px-4 md:px-6">
+      <router-view
+        v-show="showPage"
+        :key="`${$route.path}${JSON.stringify($route.query)}`"
+        @page-ready="onPageReady"
+      />
+      <base-spinner v-show="!showPage" />
+      <base-notifications />
+    </div>
   </base-layout>
 </template>
 

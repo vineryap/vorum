@@ -18,16 +18,16 @@ export default {
 
         return {
           ...forum,
-          get threadsCount () {
+          get threadsCount() {
             return forum.threads?.length || 0
           },
-          get lastThreadId () {
+          get lastThreadId() {
             return forum.threads?.at(-1)
           },
-          get lastThread () {
+          get lastThread() {
             return rootGetters['threads/thread'](this.lastThreadId)
           },
-          get lastThreadUser () {
+          get lastThreadUser() {
             return rootGetters['users/user'](this.lastThread?.userId)
           }
         }

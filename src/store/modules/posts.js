@@ -3,7 +3,8 @@ import {
   docToResource,
   makeFetchDocAction,
   makeFetchDocsAction,
-  makeFetchDocsQueryAction
+  makeFetchDocsQueryAction,
+  makeRemoveDoc
 } from '@/helpers'
 import db from '@/config/firestore'
 import {
@@ -12,6 +13,7 @@ import {
   getDoc,
   updateDoc,
   arrayUnion,
+  arrayRemove,
   writeBatch,
   serverTimestamp,
   increment
@@ -34,7 +36,9 @@ export default {
       }
     }
   },
-  mutations: {},
+  mutations: {
+    removePost: makeRemoveDoc()
+  },
   actions: {
     async createPost({ commit, rootState, rootGetters }, post) {
       post.publishedAt = serverTimestamp()
@@ -150,6 +154,34 @@ export default {
     },
     fetchPostById: makeFetchDocAction({ resource: 'posts' }),
     fetchPostsByIds: makeFetchDocsAction({ resource: 'posts' }),
-    fetchPostsByQuery: makeFetchDocsQueryAction({ resource: 'posts' })
+    fetchPostsByQuery: makeFetchDocsQueryAction({ resource: 'posts' }),
+    deletePost: async (
+      { state, commit, dispatch, rootState, rootGetters },
+      { post }
+    ) => {
+      const thread = rootGetters['threads/thread'](post.threadId)
+      if (post.isFirstPost || post.id === thread.firstPostId) return null
+
+      const userId = rootState.auth.authId
+      const prevPostId = thread.posts.at(-2)
+      const prevPost = findById(state.items, post.id)
+
+      const batch = writeBatch(db)
+      const userRef = doc(db, 'users', userId)
+      const threadRef = doc(db, 'threads', post.threadId)
+      const updatedThread = {
+        posts: arrayRemove(post.id),
+        lastPostId: prevPostId,
+        lastPostAt: prevPost.publishedAt
+      }
+      batch.update(threadRef, updatedThread)
+      batch.update(userRef, {
+        postsCount: increment(-1)
+      })
+      await batch.commit()
+
+      dispatch('deleteDoc', { resource: 'posts', id: post.id }, { root: true })
+      commit('removePost', { id: post.id })
+    }
   }
 }

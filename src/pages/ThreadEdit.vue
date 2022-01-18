@@ -1,8 +1,9 @@
 <template>
-  <div class="container">
-    <div v-if="pageLoadStatus_pageReady" class="col-full push-top">
+  <div v-if="!isError" class="container mx-auto">
+    <div v-if="isPageReady" class="col-full push-top">
       <h1>
-        Editing <i>{{ thread.title }}</i>
+        Editing
+        <i>{{ thread.title }}</i>
       </h1>
       <thread-editor
         :title="thread.title"
@@ -14,67 +15,64 @@
       />
     </div>
   </div>
+  <base-error-fallback v-else />
 </template>
 
-<script>
+<script setup>
 import ThreadEditor from '@/components/ThreadEditor.vue'
-import { mapActions, mapGetters } from 'vuex'
-import { pageLoadStatus } from '@/mixins'
-export default {
-  components: { ThreadEditor },
-  props: {
-    id: {
-      type: String,
-      required: true
-    }
-  },
-  mixins: [pageLoadStatus],
-  data () {
-    return {
-      formIsDirty: false
-    }
-  },
-  computed: {
-    ...mapGetters({ getThread: 'threads/thread', getPost: 'posts/post' }),
-    thread () {
-      return this.getThread(this.id)
-    },
-    content () {
-      return this.getPost(this.thread.firstPostId)?.text
-    }
-  },
-  methods: {
-    ...mapActions({
-      updateThread: 'threads/updateThread',
-      fetchThreadById: 'threads/fetchThreadById',
-      fetchPostById: 'posts/fetchPostById'
-    }),
-    async save (threadData) {
-      await this.updateThread({ ...threadData, id: this.id })
-      this.redirectToThread()
-    },
-    cancel () {
-      this.redirectToThread()
-    },
-    redirectToThread () {
-      this.$router.push({ name: 'Thread', params: { id: this.id } })
-    }
-  },
-  async created () {
-    const thread = await this.fetchThreadById({ id: this.id })
-    await this.fetchPostById({ id: thread.posts[0] })
-    this.pageLoadStatus_pageLoaded()
-  },
-  beforeRouteLeave () {
-    if (this.formIsDirty) {
-      const confirmed = confirm(
-        'Any unsaved changes will be lost! Are you sure want to leave?'
-      )
-      if (!confirmed) return false
-    }
-  }
+import { mapActions, mapGetters } from '@/helpers'
+import usePageLoadStatus from '@/composables/usePageLoadStatus'
+import { computed, ref, toRefs } from 'vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
+
+const router = useRouter()
+const { isPageReady, pageLoaded } = usePageLoadStatus()
+const emit = defineEmits(['pageReady'])
+
+const isError = ref(false)
+const formIsDirty = ref(false)
+const props = defineProps({ id: { type: String, required: true } })
+const { id } = toRefs(props)
+
+const { thread: getThread } = mapGetters('threads')
+const { post: getPost } = mapGetters('posts')
+const thread = computed(() => getThread.value(id.value))
+const content = computed(() => getPost.value(thread.value.firstPostId)?.text)
+
+const { updateThread } = mapActions('threads')
+const { fetchThreadById } = mapActions('threads')
+const { fetchPostById } = mapActions('posts')
+async function save(threadData) {
+  await updateThread({ ...threadData, id: id.value })
+  redirectToThread()
 }
+function cancel() {
+  redirectToThread()
+}
+function redirectToThread() {
+  router.push({ name: 'Thread', params: { id: id.value } })
+}
+
+onBeforeRouteLeave(() => {
+  if (formIsDirty.value) {
+    const confirmed = confirm(
+      'Any unsaved changes will be lost! Are you sure want to leave?'
+    )
+    if (!confirmed) return false
+  }
+})
+
+async function initFetch() {
+  const thisThread = await fetchThreadById({ id: id.value })
+  if (!thisThread) return router.push({ name: 'NotFound' })
+  try {
+    await fetchPostById({ id: thisThread.posts[0] })
+  } catch (error) {
+    isError.value = true
+  }
+  pageLoaded(emit)
+}
+initFetch()
 </script>
 
-<style>
-</style>
+<style></style>

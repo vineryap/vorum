@@ -16,6 +16,28 @@ import { isResourceExists } from '@/helpers'
 const routes = [
   { path: '/', name: 'Home', component: Home },
   {
+    path: '/me',
+    name: 'Profile',
+    component: Profile,
+    meta: { toTop: true, smoothScroll: true, requiresAuth: true }
+  },
+  {
+    path: '/me/edit',
+    name: 'ProfileEdit',
+    component: Profile,
+    props: { edit: true },
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/user/:userId',
+    name: 'UserProfile',
+    component: Profile,
+    props: true,
+    meta: { toTop: true, smoothScroll: true }
+  },
+  { path: '/category/:id', name: 'Category', component: Category, props: true },
+  { path: '/forum/:id', name: 'Forum', component: Forum, props: true },
+  {
     path: '/thread/:id',
     name: 'Thread',
     component: Thread,
@@ -44,61 +66,17 @@ const routes = [
     }
   },
   {
-    path: '/thread/:forumId/new',
+    path: '/forum/:forumId/thread/new',
     name: 'ThreadCreate',
     component: ThreadCreate,
     props: true,
-    meta: { requiresAuth: true },
-    beforeEnter: async (to, from, next) => {
-      await store.dispatch('forums/fetchForumById', {
-        id: to.params.forumId,
-        once: true
-      })
-
-      const forumExists = isResourceExists(
-        store.state.forums.items,
-        to.params.forumId
-      )
-
-      if (forumExists) {
-        return next()
-      }
-      return next({
-        name: 'NotFound',
-        params: { pathMatch: to.path.substring(1).split('/') },
-
-        query: to.query,
-        hash: to.hash
-      })
-    }
+    meta: { requiresAuth: true }
   },
   {
     path: '/thread/:id/edit',
     name: 'ThreadEdit',
     component: ThreadEdit,
     props: true,
-    meta: { requiresAuth: true }
-  },
-  { path: '/category/:id', name: 'Category', component: Category, props: true },
-  { path: '/forum/:id', name: 'Forum', component: Forum, props: true },
-  {
-    path: '/user/:userId',
-    name: 'UserProfile',
-    component: Profile,
-    props: true,
-    meta: { toTop: true, smoothScroll: true }
-  },
-  {
-    path: '/me',
-    name: 'Profile',
-    component: Profile,
-    meta: { toTop: true, smoothScroll: true, requiresAuth: true }
-  },
-  {
-    path: '/me/edit',
-    name: 'ProfileEdit',
-    component: Profile,
-    props: { edit: true },
     meta: { requiresAuth: true }
   },
   {
@@ -132,18 +110,18 @@ const router = createRouter({
   }
 })
 
-router.afterEach(() => {
-  store.dispatch('clearItems', {
-    modules: ['categories', 'forums', 'posts', 'threads']
-  })
-})
+// router.afterEach((to) => {
+//   // if (!to.meta.requiresAuth)
+//   store.dispatch('clearItems', {
+//     modules: ['categories', 'forums', 'posts', 'threads']
+//   })
+// })
 
 router.beforeEach(async (to) => {
   await store.dispatch('auth/initAuthentication')
   store.dispatch('unsubscribeFirestoreListeners')
   if (to.meta.requiresAuth) return authCheck({ redirectTo: to.path })
   if (to.meta.isGuest && store.state.auth.authId) {
-    console.log('🚏 redirecting to Home')
     return { name: 'Home' }
   }
 })

@@ -13,9 +13,9 @@ const store = createStore({
 
 const modules = import.meta.globEager('./modules/*.(js|ts)')
 for (const path in modules) {
-  const module = modules[path].default
   const moduleName = path.replace(/^.+\//, '').replace(/\.\w+$/, '')
   if (!store.hasModule(moduleName)) {
+    const module = modules[path].default
     store.registerModule(moduleName, module)
   }
 }

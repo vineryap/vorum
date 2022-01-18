@@ -19,15 +19,16 @@ export default (app) => {
 
     if (value === previousValue) return true
 
-    const docs = await store.dispatch('fetchDocsByQuery', {
+    const querySnapshot = await store.dispatch('fetchDocsByQuery', {
       resource: collection,
-      queryKey: field,
-      logic: '==',
-      queryValue: value
+      whereCondition: {
+        key: field,
+        operator: '==',
+        value
+      }
     })
 
-    const docExists = docs.length > 0
-
+    const docExists = querySnapshot.docs.length > 0
     return !docExists
   })
 
@@ -44,7 +45,7 @@ export default (app) => {
     })
   })
 
-  app.component('vField', Field)
-  app.component('vForm', Form)
-  app.component('vErrorMessage', ErrorMessage)
+  app.component('VField', Field)
+  app.component('VForm', Form)
+  app.component('VErrorMessage', ErrorMessage)
 }

@@ -6,23 +6,23 @@
           <h1 class="text-center">Register</h1>
 
           <base-form-field
+            v-model="form.name"
             name="name"
             label="Name"
-            v-model="form.name"
             type="text"
             rules="isRequired"
           />
           <base-form-field
+            v-model="form.username"
             name="username"
             label="Username"
-            v-model="form.username"
             type="text"
             rules="isRequired|unique:users,username"
           />
           <base-form-field
+            v-model="form.email"
             name="email"
             label="Email"
-            v-model="form.email"
             type="email"
             :rules="{
               isRequired: true,
@@ -31,9 +31,9 @@
             }"
           />
           <base-form-field
+            v-model="form.password"
             name="password"
             label="Password"
-            v-model="form.password"
             type="password"
             rules="isRequired|min:3"
           />
@@ -50,11 +50,11 @@
               </div>
             </label>
             <vField
+              v-show="!avatarPreview"
+              id="avatar"
               name="avatar"
               label="Avatar"
-              v-show="!avatarPreview"
               accept="image/*"
-              id="avatar"
               type="file"
               class="form-input"
               @change="imageUploadHandler"
@@ -79,7 +79,8 @@
 import { mapActions } from 'vuex'
 
 export default {
-  data () {
+  emits: ['pageReady'],
+  data() {
     return {
       form: {
         name: '',
@@ -91,20 +92,23 @@ export default {
       avatarPreview: null
     }
   },
+  created() {
+    this.$emit('pageReady')
+  },
   methods: {
     ...mapActions([
       'auth/registerUserWithEmailAndPassword',
       'auth/signInWithGoogle'
     ]),
-    async register () {
+    async register() {
       await this['auth/registerUserWithEmailAndPassword'](this.form)
       this.$router.push('/')
     },
-    async registerWithGoogle () {
+    async registerWithGoogle() {
       await this['auth/signInWithGoogle']()
       this.$router.push('/')
     },
-    imageUploadHandler (e) {
+    imageUploadHandler(e) {
       this.form.avatar = e.target.files[0]
       const reader = new FileReader()
       reader.onload = (event) => {
@@ -112,12 +116,8 @@ export default {
       }
       reader.readAsDataURL(this.form.avatar)
     }
-  },
-  created () {
-    this.$emit('pageReady')
   }
 }
 </script>
 
-<style>
-</style>
+<style></style>

@@ -106,14 +106,42 @@ export default {
     },
     fetchUserById: makeFetchDocAction({ resource: 'users' }),
     fetchUsersByIds: makeFetchDocsAction({ resource: 'users' }),
-    fetchUserPostByQuery: async (
+    fetchUserPostsByQuery: async (
       { dispatch },
-      { userId, queryConstraints }
+      { userId, additionalContraints = null }
     ) => {
-      const whereCondition = { key: 'userId', operator: '==', value: userId }
+      const queryConstraints = {
+        whereCondition: { key: 'userId', operator: '==', value: userId },
+        order: {
+          path: 'publishedAt',
+          direction: 'desc'
+        },
+        limitNumber: 5
+      }
+
+      if (additionalContraints) {
+        const { lastPost, lastPostId, sortDir, limitNumber, paginate } =
+          additionalContraints
+        if (sortDir && isString(sortDir))
+          queryConstraints.order.direction = sortDir
+        if (lastPostId) {
+          const lastPost = await getDoc(doc(db, 'posts', lastPostId))
+          queryConstraints.startAfterDoc = lastPost
+        }
+        if (lastPost) {
+          queryConstraints.startAfterDoc = lastPost
+        }
+        if (limitNumber) {
+          queryConstraints.limitNumber = limitNumber
+        }
+        if (paginate) {
+          queryConstraints.paginate = paginate
+        }
+      }
+
       return await dispatch(
         'posts/fetchPostsByQuery',
-        { whereCondition, ...queryConstraints },
+        { ...queryConstraints },
         { root: true }
       )
     }

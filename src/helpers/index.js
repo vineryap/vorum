@@ -87,9 +87,33 @@ const makeFetchDocsQueryAction = ({ resource }) => {
 const getRandomIndex = (array) => {
   return Math.floor(Math.random() * array.length)
 }
+
 const getRandomElement = (array) => {
   const index = getRandomIndex(array)
   return array[index]
+}
+
+function sortByDate(array, direction) {
+  return array.sort(function (a, b) {
+    if (direction === 'desc') {
+      return new Date(b.publishedAt) - new Date(a.publishedAt)
+    }
+    return new Date(a.publishedAt) - new Date(b.publishedAt)
+  })
+}
+
+function removeArrayElement(array, index) {
+  if (index > -1) {
+    array.splice(index, 1)
+  }
+  return array
+}
+
+function makeRemoveDoc() {
+  return (state, { id }) => {
+    const index = findResourceIndex(state.items, id)
+    removeArrayElement(state.items, index)
+  }
 }
 
 export {
@@ -105,6 +129,8 @@ export {
   makeFetchDocAction,
   makeFetchDocsAction,
   getRandomElement,
-  makeFetchDocsQueryAction
+  makeFetchDocsQueryAction,
+  sortByDate,
+  makeRemoveDoc
 }
 export * from './store'

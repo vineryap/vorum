@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full justify-center items-center">
+  <div class="flex flex-col h-full justify-center items-center text-center">
     <span class="text-3xl mb-5">404</span>
     <h1 class="text-6xl">{{ heading }}</h1>
     <router-link class="btn btn-green mt-5" :to="{ name: 'Home' }"

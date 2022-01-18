@@ -2,12 +2,12 @@
   <div class="notifications">
     <transition-group name="notification">
       <div
+        v-for="(notification, index) in notifications"
+        :key="index"
         class="notification"
         :class="
           notification.type ? `notification-type-${notification.type}` : ''
         "
-        v-for="(notification, index) in notifications"
-        :key="index"
       >
         <span>{{ notification.message }}</span>
         <button @click="removeNotification(notification.id)">x</button>
@@ -20,7 +20,7 @@
 import useNotifications from '@/composables/useNotifications'
 
 export default {
-  setup () {
+  setup() {
     const { notifications, removeNotification } = useNotifications()
     return { notifications, removeNotification }
   }

@@ -10,11 +10,11 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateEmail,
-  reauthenticateWithCredential
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from 'firebase/auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import storage from '@/config/storage'
-import { isString } from 'lodash'
 
 export default {
   namespaced: true,
@@ -24,7 +24,7 @@ export default {
     authStateChangeObserver: null
   },
   getters: {
-    authUser: (state, getters, rootState, rootGetters) => {
+    authUser: (state, _getters, _rootState, rootGetters) => {
       return rootGetters['users/user'](state.authId)
     }
   },
@@ -43,12 +43,12 @@ export default {
     }
   },
   actions: {
-    updateEmail: async (_, { email }) => {
+    updateUserEmail: async (_, { email }) => {
       try {
         const auth = getAuth()
         await updateEmail(auth.currentUser, email)
       } catch (error) {
-        console.log(error)
+        console.log('store', error)
         const { addNotification } = useNotifications()
         addNotification({
           message: 'Failed updating Email.',
@@ -57,18 +57,14 @@ export default {
         })
       }
     },
-    reauthenticateUser: async ({ dispatch }, { email, password }) => {
+    reauthenticateUser: async (_, { email, password }) => {
       const auth = getAuth()
-      const user = auth.currentUser
 
-      // TODO(you): prompt the user to re-provide their sign-in credentials
-      const credential = await dispatch('signInWithEmailAndPassword', {
-        email,
-        password
-      })
+      const credential = EmailAuthProvider.credential(email, password)
       try {
-        return await reauthenticateWithCredential(user, credential)
+        return await reauthenticateWithCredential(auth.currentUser, credential)
       } catch (error) {
+        console.log('reauthenticateUser', error)
         const { addNotification } = useNotifications()
         addNotification({
           message: 'Failed confirming account.',
@@ -83,9 +79,8 @@ export default {
       return new Promise((resolve) => {
         const auth = getAuth()
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-          console.log('initAuthentication', user)
+          // console.log('initAuthentication', user)
           dispatch('unsubscribeAuthUserListener')
-          // await dispatch('fetchAuthUser') //temporary
           if (user) {
             await dispatch('fetchAuthUser')
             resolve(user)
@@ -198,34 +193,9 @@ export default {
     fetchAuthUserPosts: async ({ state, dispatch }, additionalContraints) => {
       console.log('🔥 fetchAuthUserPosts:')
 
-      const queryConstraints = {
-        order: {
-          path: 'publishedAt',
-          direction: 'desc'
-        },
-        limitNumber: 5
-      }
-      if (additionalContraints) {
-        const { lastPost, lastPostId, sortDir, limitNumber } =
-          additionalContraints
-        if (sortDir && isString(sortDir))
-          queryConstraints.order.direction = sortDir
-        if (lastPostId) {
-          const lastPost = await getDoc(doc(db, 'posts', lastPostId))
-          queryConstraints.startAfterDoc = lastPost
-        }
-        if (lastPost) {
-          console.log(lastPost)
-          queryConstraints.startAfterDoc = lastPost
-        }
-        if (limitNumber) {
-          queryConstraints.limitNumber = limitNumber
-        }
-      }
-
       const posts = await dispatch(
-        'users/fetchUserPostByQuery',
-        { userId: state.authId, queryConstraints },
+        'users/fetchUserPostsByQuery',
+        { userId: state.authId, additionalContraints },
         { root: true }
       )
       return posts

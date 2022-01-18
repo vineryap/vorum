@@ -15,7 +15,7 @@
 
       <p class="text-justify">{{ user.bio || 'No bio specified.' }}</p>
 
-      <span class="online">{{ user.username }} is online</span>
+      <!-- <span class="online">{{ user.username }} is online</span> -->
 
       <div class="stats">
         <span>
@@ -42,7 +42,7 @@
       </p>
     </div>
     <div class="text-gray-500 text-center mb-4 sm:mr-5">
-      <p class="text-sm" v-if="user.registeredAt">
+      <p v-if="user.registeredAt" class="text-sm">
         Member since
         <base-date :timestamp="user.registeredAt" />
       </p>
@@ -55,30 +55,29 @@
 
     <div v-if="!isUnauthenticatedUser" class="text-center sm:mr-5">
       <hr />
-      <router-link :to="{ name: 'ProfileEdit' }" class="btn-green btn-small">Edit Profile</router-link>
+      <router-link :to="{ name: 'ProfileEdit' }" class="btn-green btn-small"
+        >Edit Profile</router-link
+      >
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { formatNoun } from '@/helpers'
+import { toRefs } from 'vue'
 
-export default {
-  props: {
-    user: {
-      type: Object,
-      required: true
-    },
-    isUnauthenticatedUser: {
-      type: Boolean,
-      required: true
-    }
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
   },
-  methods: {
-    formatNoun
+  isUnauthenticatedUser: {
+    type: Boolean,
+    required: true
   }
-}
+})
+
+const { user, isUnauthenticatedUser } = toRefs(props)
 </script>
 
-<style>
-</style>
+<style></style>
