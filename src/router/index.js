@@ -5,9 +5,9 @@ import ThreadCreate from '@/pages/ThreadCreate.vue'
 import ThreadEdit from '@/pages/ThreadEdit.vue'
 import Category from '@/pages/Category.vue'
 import Forum from '@/pages/Forum.vue'
-import Profile from '@/pages/Profile.vue'
-import Register from '@/pages/Register.vue'
-import Login from '@/pages/Login.vue'
+import ProfilePage from '@/pages/ProfilePage.vue'
+import RegisterPage from '@/pages/RegisterPage.vue'
+import LoginPage from '@/pages/LoginPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 import { authCheck, logout } from '@/router/middlewares'
 import store from '@/store'
@@ -17,23 +17,23 @@ const routes = [
   { path: '/', name: 'Home', component: Home },
   {
     path: '/me',
-    name: 'Profile',
-    component: Profile,
+    name: 'ProfilePage',
+    component: ProfilePage,
     meta: { toTop: true, smoothScroll: true, requiresAuth: true }
   },
   {
     path: '/me/edit',
     name: 'ProfileEdit',
-    component: Profile,
+    component: ProfilePage,
     props: { edit: true },
     meta: { requiresAuth: true }
   },
   {
     path: '/user/:userId',
     name: 'UserProfile',
-    component: Profile,
+    component: ProfilePage,
     props: true,
-    meta: { toTop: true, smoothScroll: true }
+    meta: { toTop: true, smoothScroll: true, requiresAuth: true }
   },
   { path: '/category/:id', name: 'Category', component: Category, props: true },
   { path: '/forum/:id', name: 'Forum', component: Forum, props: true },
@@ -55,14 +55,15 @@ const routes = [
 
       if (threadExists) {
         return next()
-      }
-      return next({
-        name: 'NotFound',
-        params: { pathMatch: to.path.substring(1).split('/') },
+      } else {
+        return next({
+          name: 'NotFound',
+          params: { pathMatch: to.path.substring(1).split('/') },
 
-        query: to.query,
-        hash: to.hash
-      })
+          query: to.query,
+          hash: to.hash
+        })
+      }
     }
   },
   {
@@ -81,14 +82,14 @@ const routes = [
   },
   {
     path: '/register',
-    name: 'Register',
-    component: Register,
+    name: 'RegisterPage',
+    component: RegisterPage,
     meta: { isGuest: true }
   },
   {
     path: '/login',
-    name: 'Login',
-    component: Login,
+    name: 'LoginPage',
+    component: LoginPage,
     meta: { isGuest: true }
   },
   {
@@ -109,13 +110,6 @@ const router = createRouter({
     return scroll
   }
 })
-
-// router.afterEach((to) => {
-//   // if (!to.meta.requiresAuth)
-//   store.dispatch('clearItems', {
-//     modules: ['categories', 'forums', 'posts', 'threads']
-//   })
-// })
 
 router.beforeEach(async (to) => {
   await store.dispatch('auth/initAuthentication')

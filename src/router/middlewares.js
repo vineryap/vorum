@@ -3,7 +3,7 @@ import store from '@/store'
 const authCheck = (query = null) => {
   if (!store.state.auth.authId) {
     console.log('🚏 redirecting to Login page')
-    return { name: 'Login', query }
+    return { name: 'LoginPage', query }
   }
 }
 

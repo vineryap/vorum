@@ -1,5 +1,5 @@
 <template>
-  <img :src="src" @error="imageLoadError" />
+  <img :src="src || ''" class="ring-2 ring-gray-100" @error="imageLoadError" />
 </template>
 
 <script>
@@ -7,7 +7,7 @@ export default {
   props: {
     src: {
       type: String,
-      default: '@/assets/img/user_avatar_placeholder.png'
+      default: ''
     }
   },
   methods: {

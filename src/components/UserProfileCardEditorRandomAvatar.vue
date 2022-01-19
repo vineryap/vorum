@@ -9,7 +9,10 @@
     </button>
     <br />
     <small style="opacity: 0.5"
-      >Powered by <a href="https://unsplash.com">Unsplash</a></small
+      >Powered by
+      <a target="_blank" rel="external" href="https://unsplash.com"
+        >Unsplash</a
+      ></small
     >
   </div>
 </template>

@@ -66,7 +66,7 @@ export default {
   },
   actions: {
     async createThread(
-      { commit, dispatch, rootState },
+      { commit, state, dispatch, rootState },
       { title, text, forumId }
     ) {
       const thread = {
@@ -120,7 +120,7 @@ export default {
         { root: true }
       )
 
-      return docToResource(newThread)
+      return findById(state.items, threadRef.id)
     },
     async updateThread({ commit, state, rootState }, { title, text, id }) {
       const thread = findById(state.items, id)

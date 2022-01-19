@@ -13,14 +13,13 @@ function onPageReady() {
   showPage.value = true
   NProgress.done()
 }
+router.beforeEach(() => {
+  showPage.value = false
+  NProgress.start()
+})
 async function initFetch() {
   await fetchAuthUser()
   NProgress.configure({ showSpinner: false })
-
-  router.beforeEach(() => {
-    showPage.value = false
-    NProgress.start()
-  })
 }
 initFetch()
 </script>

@@ -1,6 +1,11 @@
 <template>
   <div class="container mx-auto pb-26">
     <div v-if="isPageReady" class="push-top md:mx-20 xl:mx-30">
+      <base-head>
+        <title>{{ thread?.title }} | Vorum</title>
+        <meta property="og:title" :content="thread?.title" />
+        <meta name="twitter:title" :content="thread?.title" />
+      </base-head>
       <the-breadcrumbs :forum-id="thread.forumId" />
       <h1>
         {{ thread.title }}
@@ -17,7 +22,7 @@
         By
         <router-link
           :to="{
-            name: authUser.id === thread.userId ? 'Profile' : 'UserProfile',
+            name: authUser.id === thread.userId ? 'ProfilePage' : 'UserProfile',
             params:
               authUser.id === thread.userId ? null : { userId: thread.userId }
           }"
@@ -45,11 +50,12 @@
       <post-editor v-if="authUser" @save="submitNewPost" />
       <div v-else class="text-center" style="margin-bottom: 50px">
         Please
-        <router-link :to="{ name: 'Login', query: { redirectTo: $route.path } }"
+        <router-link
+          :to="{ name: 'LoginPage', query: { redirectTo: $route.path } }"
           >Sign In</router-link
         >or
         <router-link
-          :to="{ name: 'Register', query: { redirectTo: $route.path } }"
+          :to="{ name: 'RegisterPage', query: { redirectTo: $route.path } }"
           >Register</router-link
         >to reply.
       </div>
@@ -65,11 +71,16 @@ import PostEditor from '@/components/PostEditor.vue'
 import TheBreadcrumbs from '@/components/TheBreadcrumbs.vue'
 import { formatNoun, mapActions, mapGetters } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
+import useNotifications from '@/composables/useNotifications'
 import { useRouter } from 'vue-router'
 import { computed, ref, toRefs } from 'vue'
+import { difference } from 'lodash'
+import { useStore } from 'vuex'
 
 const router = useRouter()
+const store = useStore()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
+const { addNotification } = useNotifications()
 const emit = defineEmits(['pageReady'])
 
 const isError = ref(false)
@@ -93,7 +104,18 @@ async function submitNewPost({ post }) {
   await createPost({ ...post, threadId: id.value })
 }
 async function fetchPostsAndUsers(ids) {
-  const posts = await fetchPostsByIds({ ids })
+  const posts = await fetchPostsByIds({
+    ids,
+    onSnapshotFn: ({ isLocal, previousDoc }) => {
+      if (
+        !isPageReady.value ||
+        isLocal ||
+        (previousDoc?.edited && !previousDoc?.edited?.at)
+      )
+        return
+      addNotification({ message: 'Thread updated', timeout: 5000 })
+    }
+  })
 
   const postUserIds = posts
     .map((post) => post.userId)
@@ -103,7 +125,18 @@ async function fetchPostsAndUsers(ids) {
 }
 
 async function initFetch() {
-  const thread = await fetchThreadById({ id: id.value })
+  const thread = await fetchThreadById({
+    id: id.value,
+    onSnapshotFn: async ({ isLocal, currentDoc, previousDoc }) => {
+      if (!isPageReady.value || isLocal || !previousDoc.lastPostAt) return
+      const newPostIds = difference(currentDoc.posts, previousDoc.posts)
+      if (newPostIds.length > 0) {
+        await fetchPostsAndUsers(newPostIds)
+      } else {
+        addNotification({ message: 'Thread updated', timeout: 5000 })
+      }
+    }
+  })
 
   if (!thread) {
     router.push({ name: 'NotFound' })

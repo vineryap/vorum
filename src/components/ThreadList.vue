@@ -34,7 +34,7 @@
                     :to="{
                       name:
                         authUser.id === thread.userId
-                          ? 'Profile'
+                          ? 'ProfilePage'
                           : 'UserProfile',
                       params:
                         authUser.id === thread.userId
@@ -67,7 +67,7 @@
                     :to="{
                       name:
                         authUser.id === thread.lastUser.id
-                          ? 'Profile'
+                          ? 'ProfilePage'
                           : 'UserProfile',
                       params:
                         authUser.id === thread.lastUser.id

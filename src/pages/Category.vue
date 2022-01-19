@@ -1,12 +1,16 @@
 <template>
-  <div class="flex flex-col flex-wrap sm:flex-row">
-    <ForumList
-      v-if="isPageReady && !isError"
-      :category-name="category.name"
-      :forums="forums"
-    />
-    <base-error-fallback v-else />
+  <div
+    v-if="isPageReady && !isError"
+    class="flex flex-col flex-wrap sm:flex-row"
+  >
+    <base-head>
+      <title>{{ category?.name }} | Vorum</title>
+      <meta property="og:title" :content="category?.name" />
+      <meta name="twitter:title" :content="category?.name" />
+    </base-head>
+    <ForumList :category-name="category.name" :forums="forums" />
   </div>
+  <base-error-fallback v-else />
 </template>
 
 <script setup>

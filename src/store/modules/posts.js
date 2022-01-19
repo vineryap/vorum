@@ -80,7 +80,7 @@ export default {
         'threads/appendPostIdToThread',
         {
           parentId: post.threadId,
-          childId: postRef.id
+          childId: newPost.id
         },
         { root: true }
       )
@@ -101,7 +101,7 @@ export default {
           'threads/setThreadFirstPostId',
           {
             resourceId: post.threadId,
-            value: postRef.id
+            value: newPost.id
           },
           { root: true }
         )
@@ -110,7 +110,7 @@ export default {
         'threads/setThreadLastPostId',
         {
           resourceId: post.threadId,
-          value: postRef.id
+          value: newPost.id
         },
         { root: true }
       )
@@ -118,7 +118,7 @@ export default {
         'threads/setThreadLastPostAt',
         {
           resourceId: post.threadId,
-          value: post.publishedAt
+          value: newPost.data().publishedAt
         },
         { root: true }
       )

@@ -2,6 +2,11 @@ import { readonly, ref } from 'vue'
 
 const isPageReady = ref(false)
 
+function getInitialStatus() {
+  isPageReady.value = false
+  return readonly(isPageReady)
+}
+
 function pageLoaded(emit) {
   isPageReady.value = true
   emit('pageReady')
@@ -9,7 +14,7 @@ function pageLoaded(emit) {
 
 export default function userPageLoadStatus() {
   return {
-    isPageReady: readonly(isPageReady),
+    isPageReady: getInitialStatus(),
     pageLoaded
   }
 }

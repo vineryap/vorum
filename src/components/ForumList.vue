@@ -83,11 +83,11 @@
                   <router-link
                     :to="{
                       name:
-                        authUser.id === forum.lastThreadUser.id
-                          ? 'Profile'
+                        authUser?.id === forum.lastThreadUser?.id
+                          ? 'ProfilePage'
                           : 'UserProfile',
                       params:
-                        authUser.id === forum.lastThreadUser.id
+                        authUser?.id === forum.lastThreadUser.id
                           ? null
                           : { userId: forum.lastThreadUser.id }
                     }"

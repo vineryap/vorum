@@ -65,7 +65,7 @@ const { fetchUserById, fetchUsersByIds, fetchUserPostsByQuery } =
   mapActions('users')
 
 const isUnauthenticatedUser = computed(
-  () => !!userId.value && userId.value !== authUser.value.id
+  () => !!userId.value && userId.value !== authUser.value?.id
 )
 
 const user = computed(() => {

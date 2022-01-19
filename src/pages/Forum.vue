@@ -1,5 +1,10 @@
 <template>
   <div v-if="isPageReady && !isError" class="w-full">
+    <base-head>
+      <title>{{ forum?.name }} | Vorum</title>
+      <meta property="og:title" :content="forum?.name" />
+      <meta name="twitter:title" :content="forum?.name" />
+    </base-head>
     <the-breadcrumbs :forum-id="id" />
     <div class="flex flex-col flex-wrap justify-between sm:flex-row mb-4">
       <div class="forum-details">

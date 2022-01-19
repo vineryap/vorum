@@ -1,5 +1,10 @@
 <template>
   <div class="container">
+    <base-head>
+      <title>Login | Vorum</title>
+      <meta property="og:title" content="Login" />
+      <meta name="twitter:title" content="Login" />
+    </base-head>
     <div class="flex-grid justify-center">
       <div class="col-2">
         <vForm class="card card-form" @submit="signIn">
@@ -28,7 +33,7 @@
           </div>
 
           <div class="form-actions text-right">
-            <router-link :to="{ name: 'Register' }"
+            <router-link :to="{ name: 'RegisterPage' }"
               >Create an account?</router-link
             >
           </div>

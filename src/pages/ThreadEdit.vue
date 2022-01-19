@@ -1,6 +1,11 @@
 <template>
   <div v-if="!isError" class="container mx-auto">
     <div v-if="isPageReady" class="col-full push-top">
+      <base-head>
+        <title>{{ thread?.title }} | Edit Thread</title>
+        <meta property="og:title" :content="thread?.title" />
+        <meta name="twitter:title" :content="thread?.title" />
+      </base-head>
       <h1>
         Editing
         <i>{{ thread.title }}</i>

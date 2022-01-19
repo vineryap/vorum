@@ -159,7 +159,7 @@ export default {
             id: user.uid,
             email: user.email,
             name: user.displayName,
-            username: user.email,
+            username: user.email.replace(/@.*$/, ''),
             avatar: user.photoURL
           },
           { root: true }

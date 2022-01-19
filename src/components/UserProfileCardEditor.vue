@@ -2,20 +2,26 @@
   <div class="col-3 push-top">
     <div class="profile-card">
       <vForm @submit="save">
-        <p class="text-center avatar-edit flex justify-center items-center">
-          <label for="avatar">
+        <p
+          class="text-center avatar-edit flex flex-col justify-center items-center"
+        >
+          <i class="text-gray-500 text-sm">Click image to change avatar</i>
+          <label
+            class="group my-5 overflow-hidden rounded-full shadow-lg"
+            for="avatar"
+          >
             <base-avatar-image
               :src="currentUser.avatar"
               :alt="`${currentUser.name} profile picture`"
-              class="avatar-xlarge img-update"
-              style="cursor: pointer"
+              class="avatar-xlarge img-update cursor-pointer"
+              style="margin-bottom: 0"
             />
-            <div class="avatar-upload-overlay">
+            <div
+              class="avatar-upload-overlay opacity-0 group-hover:opacity-80 transition"
+            >
               <base-spinner v-if="uploadingImage" color="#ffffff" />
-              <fa-icon
-                icon="camera"
-                size="3x"
-                :style="{ color: 'white', opacity: '8' }"
+              <IconFaCamera
+                class="text-6xl cursor-pointer text-white transition"
               />
             </div>
             <input
@@ -29,7 +35,7 @@
         </p>
         <user-profile-card-editor-random-avatar
           class="mb-8"
-          @randomAvatar="currentUser.avatar = $event"
+          @random-avatar="currentUser.avatar = $event"
         />
 
         <base-form-field
@@ -124,7 +130,8 @@
 </template>
 
 <script setup>
-import { formatNoun, mapActions } from '@/helpers'
+import IconFaCamera from '~icons/fa-solid/camera'
+import { mapActions } from '@/helpers'
 import UserProfileCardEditorRandomAvatar from './UserProfileCardEditorRandomAvatar.vue'
 import UserReauthenticate from './UserReauthenticate.vue'
 import useNotifications from '@/composables/useNotifications'
@@ -170,11 +177,11 @@ async function onReauthenticatedFail() {
     timeout: 5000,
     type: 'error'
   })
-  router.push({ name: 'Profile' })
+  router.push({ name: 'ProfilePage' })
 }
 async function saveUserData() {
   await updateUser(currentUser)
-  router.push({ name: 'Profile' })
+  router.push({ name: 'ProfilePage' })
   addNotification({
     message: 'User successfully updated',
     timeout: 3000
@@ -190,7 +197,7 @@ async function save() {
   }
 }
 function cancel() {
-  router.push({ name: 'Profile' })
+  router.push({ name: 'ProfilePage' })
 }
 async function imageUploadHandler(e) {
   uploadingImage.value = true

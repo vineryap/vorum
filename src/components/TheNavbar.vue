@@ -31,8 +31,8 @@
                 <div class="relative inline-block text-left">
                   <div @mouseenter="toggleDropdown" @click="toggleDropdown">
                     <a class="block relative">
-                      <img
-                        alt="profile"
+                      <base-avatar-image
+                        :alt="`${authUser.username}'s avatar`"
                         :src="authUser.avatar"
                         class="mx-auto object-cover rounded-full h-10 w-10"
                       />
@@ -50,7 +50,10 @@
                       aria-labelledby="options-menu"
                     >
                       <router-link
-                        :to="{ name: 'Profile', params: { id: authUser.id } }"
+                        :to="{
+                          name: 'ProfilePage',
+                          params: { id: authUser.id }
+                        }"
                         class="block block px-4 py-2 text-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:text-white dark:hover:bg-gray-600"
                         role="menuitem"
                       >
@@ -78,13 +81,15 @@
                   class="inline-flex items-center text-gray-800 hover:text-gray-500 dark:hover:text-white px-3 py-2 rounded-md font-medium"
                   href="/#"
                 >
-                  <router-link :to="{ name: 'Login' }">Sign In</router-link>
+                  <router-link :to="{ name: 'LoginPage' }">Sign In</router-link>
                 </a>
                 <a
                   class="inline-flex items-center text-gray-800 hover:text-gray-500 dark:hover:text-white px-3 py-2 rounded-md font-medium"
                   href="/#"
                 >
-                  <router-link :to="{ name: 'Register' }">Register</router-link>
+                  <router-link :to="{ name: 'RegisterPage' }"
+                    >Register</router-link
+                  >
                 </a>
               </div>
             </div>

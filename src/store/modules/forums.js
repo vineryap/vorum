@@ -11,7 +11,7 @@ export default {
     items: []
   },
   getters: {
-    forum: (state, getters, rootState, rootGetters) => {
+    forum: (state, _getters, _rootState, rootGetters) => {
       return (id) => {
         const forum = findById(state.items, id)
         if (!forum) return null

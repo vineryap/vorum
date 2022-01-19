@@ -1,6 +1,11 @@
 <template>
   <div class="container mx-auto">
     <div v-if="isPageReady" class="col-full push-top">
+      <base-head>
+        <title>{{ forum?.name }} | New Thread</title>
+        <meta property="og:title" :content="forum?.name" />
+        <meta name="twitter:title" :content="forum?.name" />
+      </base-head>
       <h1>
         Create new thread in
         <i>{{ forum.name }}</i>
