@@ -162,7 +162,7 @@ export default {
       if (post.isFirstPost || post.id === thread.firstPostId) return null
 
       const userId = rootState.auth.authId
-      const prevPostId = thread.posts.at(-2)
+      const prevPostId = thread.posts[thread.posts?.length - 2]
       const prevPost = findById(state.items, post.id)
 
       const batch = writeBatch(db)

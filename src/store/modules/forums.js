@@ -22,7 +22,9 @@ export default {
             return forum.threads?.length || 0
           },
           get lastThreadId() {
-            return forum.threads?.at(-1)
+            return this.threadsCount
+              ? forum.threads[forum.threads?.length - 1]
+              : null
           },
           get lastThread() {
             return rootGetters['threads/thread'](this.lastThreadId)

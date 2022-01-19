@@ -119,8 +119,8 @@ async function initFetch() {
   // const category = await fetchCategoryById({ id: thisForum.categoryId })
   // const forums = await fetchForumsByIds({ ids: category.forums })
   // const forumsThreadIds = forums
-  //   .map((f) => f.threads?.at(-1))
-  //   .filter((id) => id)
+  //   .filter((f) => !!f.threads)
+  // .map((f) => f.threads[f.threads?.length - 1])
   // const threadIds = [...forumsThreadIds, ...thisForum.threads]
   try {
     if (thisForum.threads) {

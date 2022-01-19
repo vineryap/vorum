@@ -27,12 +27,13 @@ const initFetch = async () => {
     const forumIds = allCategories.map((category) => category.forums).flat()
     const forums = await fetchForumsByIds({ ids: forumIds })
     const lastThreadIds = forums
-      .map((f) => f.threads?.at(-1))
-      .filter((id) => id)
+      .filter((f) => !!f.threads)
+      .map((f) => f.threads[f.threads?.length - 1])
     const threads = await fetchThreadsByIds({ ids: lastThreadIds })
     const userIds = threads.map((thread) => thread.userId)
     await fetchUsersByIds({ ids: userIds })
   } catch (error) {
+    console.log(error)
     isError.value = true
   }
   pageLoaded(emit)

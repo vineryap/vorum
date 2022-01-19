@@ -50,8 +50,8 @@ async function initFetch() {
     if (thisCategory.forums.length) {
       const forums = await fetchForumsByIds({ ids: thisCategory.forums })
       const lastThreadIds = forums
-        .map((f) => f.threads?.at(-1))
-        .filter((id) => id)
+        .filter((f) => !!f.threads)
+        .map((f) => f.threads[f.threads?.length - 1])
 
       if (lastThreadIds.length) {
         const threads = await fetchThreadsByIds({ ids: lastThreadIds })
