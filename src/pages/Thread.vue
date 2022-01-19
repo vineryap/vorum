@@ -56,11 +56,13 @@
         <router-link
           :to="{ name: 'LoginPage', query: { redirectTo: $route.path } }"
           >Sign In</router-link
-        >or
+        >
+        or
         <router-link
           :to="{ name: 'RegisterPage', query: { redirectTo: $route.path } }"
           >Register</router-link
-        >to reply.
+        >
+        to reply.
       </div>
     </div>
     <!-- <base-error-fallback v-else /> -->

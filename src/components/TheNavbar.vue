@@ -25,7 +25,7 @@
               </div>
             </div>
           </div>
-          <div class="block">
+          <div class="hidden sm:block">
             <div v-if="authUser" class="ml-4 flex items-center md:ml-6">
               <div class="ml-3 flex items-center">
                 <div class="relative inline-block text-left">
@@ -77,49 +77,77 @@
             </div>
             <div v-else class="md:block">
               <div class="flex items-baseline">
-                <a
+                <router-link
                   class="inline-flex items-center text-gray-800 hover:text-gray-500 dark:hover:text-white px-3 py-2 rounded-md font-medium"
-                  href="/#"
+                  :to="{ name: 'LoginPage' }"
+                  >Sign In</router-link
                 >
-                  <router-link :to="{ name: 'LoginPage' }">Sign In</router-link>
-                </a>
-                <a
+
+                <router-link
                   class="inline-flex items-center text-gray-800 hover:text-gray-500 dark:hover:text-white px-3 py-2 rounded-md font-medium"
-                  href="/#"
+                  :to="{ name: 'RegisterPage' }"
+                  >Register</router-link
                 >
-                  <router-link :to="{ name: 'RegisterPage' }"
-                    >Register</router-link
-                  >
-                </a>
               </div>
+            </div>
+          </div>
+          <div class="block sm:hidden">
+            <div
+              class="flex justify-center items-center w-7 h-7 bg-transparent rounded"
+              @click="toggleMobileNavMenu"
+            >
+              <IconFabars class="w-7 h-7 text-teal-700" />
             </div>
           </div>
         </div>
       </div>
-      <div v-if="showMobileNavMenu" class="md:hidden">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <a
-            class="text-gray-300 hover:text-gray-800 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-            href="/#"
-            >Home</a
-          >
-          <a
-            class="text-gray-800 dark:text-white block px-3 py-2 rounded-md text-base font-medium"
-            href="/#"
-            >Gallery</a
-          >
-          <a
-            class="text-gray-300 hover:text-gray-800 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-            href="/#"
-            >Content</a
-          >
-          <a
-            class="text-gray-300 hover:text-gray-800 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-            href="/#"
-            >Contact</a
-          >
+      <transition-group name="fadeHeight">
+        <div
+          v-if="showMobileNavMenu"
+          class="transition-height fixed bg-white w-full shadow sm:hidden"
+        >
+          <div v-if="authUser" class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <router-link
+              :to="{ name: 'Home' }"
+              class="text-gray-800 hover:text-gray-500 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+              >Home</router-link
+            >
+            <router-link
+              :to="{
+                name: 'ProfilePage',
+                params: { id: authUser.id }
+              }"
+              class="text-gray-800 hover:text-gray-500 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+            >
+              Profile
+            </router-link>
+            <a
+              class="text-gray-800 hover:text-gray-500 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+              @click.prevent="signOut"
+            >
+              Logout
+            </a>
+          </div>
+          <div v-else class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <router-link
+              :to="{ name: 'Home' }"
+              class="text-gray-800 hover:text-gray-500 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+              >Home</router-link
+            >
+            <router-link
+              class="text-gray-800 hover:text-gray-500 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+              :to="{ name: 'LoginPage' }"
+              >Sign In</router-link
+            >
+
+            <router-link
+              class="text-gray-800 hover:text-gray-500 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+              :to="{ name: 'RegisterPage' }"
+              >Register</router-link
+            >
+          </div>
         </div>
-      </div>
+      </transition-group>
     </nav>
   </div>
 </template>
@@ -127,9 +155,10 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import IconFaHome from '~icons/fa-solid/home'
+import IconFabars from '~icons/fa-solid/bars'
 
 export default {
-  components: { IconFaHome },
+  components: { IconFaHome, IconFabars },
   data() {
     return {
       showDropdown: false,
@@ -165,4 +194,13 @@ export default {
   }
 }
 </script>
-<style></style>
+<style>
+.fadeHeight-enter-active,
+.fadeHeight-leave-active {
+  @apply transition-all duration-300 ease max-h-52 opacity-100;
+}
+.fadeHeight-enter,
+.fadeHeight-leave-to {
+  @apply opacity-0 max-h-0 overflow-hidden;
+}
+</style>
