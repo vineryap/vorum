@@ -9,6 +9,7 @@ import analyze from 'rollup-plugin-analyzer'
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
+    target: ['es2015', 'safari11'],
     rollupOptions: {
       plugins: [analyze()]
     }
