@@ -33,7 +33,6 @@ const initFetch = async () => {
     const userIds = threads.map((thread) => thread.userId)
     await fetchUsersByIds({ ids: userIds })
   } catch (error) {
-    console.log(error)
     isError.value = true
   }
   pageLoaded(emit)
