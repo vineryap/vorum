@@ -87,9 +87,9 @@
                           ? 'ProfilePage'
                           : 'UserProfile',
                       params:
-                        authUser?.id === forum.lastThreadUser.id
+                        authUser?.id === forum.lastThreadUser?.id
                           ? null
-                          : { userId: forum.lastThreadUser.id }
+                          : { userId: forum.lastThreadUser?.id }
                     }"
                     >{{ forum.lastThreadUser.username }}</router-link
                   >

@@ -33,13 +33,13 @@
                   <router-link
                     :to="{
                       name:
-                        authUser.id === thread.userId
+                        authUser?.id === thread?.userId
                           ? 'ProfilePage'
                           : 'UserProfile',
                       params:
-                        authUser.id === thread.userId
+                        authUser?.id === thread?.userId
                           ? null
-                          : { userId: thread.userId }
+                          : { userId: thread?.userId }
                     }"
                     >{{ thread.authorName }}</router-link
                   >, <base-time :timestamp="thread.publishedAt" />.

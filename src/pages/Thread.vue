@@ -22,9 +22,12 @@
         By
         <router-link
           :to="{
-            name: authUser.id === thread.userId ? 'ProfilePage' : 'UserProfile',
+            name:
+              authUser?.id === thread?.userId ? 'ProfilePage' : 'UserProfile',
             params:
-              authUser.id === thread.userId ? null : { userId: thread.userId }
+              authUser?.id === thread?.userId
+                ? null
+                : { userId: thread?.userId }
           }"
           class="link-unstyled"
           >{{ thread.authorName }}</router-link

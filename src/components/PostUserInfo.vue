@@ -2,16 +2,16 @@
   <div v-if="user" class="user-info">
     <router-link
       :to="{
-        name: authUser.id === user.id ? 'ProfilePage' : 'UserProfile',
-        params: authUser.id === user.id ? null : { userId: user.id }
+        name: authUser?.id === user?.id ? 'ProfilePage' : 'UserProfile',
+        params: authUser?.id === user?.id ? null : { userId: user?.id }
       }"
       class="user-name"
       >{{ user.username }}</router-link
     >
     <router-link
       :to="{
-        name: authUser.id === user.id ? 'ProfilePage' : 'UserProfile',
-        params: authUser.id === user.id ? null : { userId: user.id }
+        name: authUser?.id === user?.id ? 'ProfilePage' : 'UserProfile',
+        params: authUser?.id === user?.id ? null : { userId: user?.id }
       }"
       class="mr-2.5"
     >
