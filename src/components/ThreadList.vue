@@ -91,13 +91,26 @@
                 class="flex-col w-10 h-10 justify-center items-center ml-4 hidden"
                 sm="flex"
               >
-                <a v-if="thread.lastUser" href="#" class="block relative">
+                <router-link
+                  v-if="thread.lastUser"
+                  :to="{
+                    name:
+                      authUser?.id === thread.lastUser?.id
+                        ? 'ProfilePage'
+                        : 'UserProfile',
+                    params:
+                      authUser?.id === thread.lastUser?.id
+                        ? null
+                        : { userId: thread.lastUser?.id }
+                  }"
+                  class="block relative"
+                >
                   <base-avatar-image
                     class="avatar"
                     :src="thread.lastUser?.avatar"
                     :alt="`${thread.lastUser?.username}'s avatar.`"
                   />
-                </a>
+                </router-link>
               </div>
             </div>
           </li>

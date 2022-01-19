@@ -38,7 +38,9 @@
 
       <p v-if="user.website" class="text-large text-center">
         <i class="fa fa-globe"></i>
-        <a :href="user.website">{{ user.website }}</a>
+        <a target="_blank" rel="external" :href="user.website">{{
+          user.website
+        }}</a>
       </p>
     </div>
     <div class="text-gray-500 text-center mb-4 sm:mr-5">
