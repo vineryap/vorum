@@ -2,12 +2,5 @@
 import { defineConfig } from 'windicss/helpers'
 
 export default defineConfig({
-  attributify: true,
-  theme: {
-    extend: {
-      transitionProperty: {
-        height: 'height'
-      }
-    }
-  }
+  attributify: true
 })
