@@ -67,9 +67,7 @@ async function signIn() {
   try {
     await signInWithEmailAndPassword(form.value)
     successRedirect()
-  } catch (error) {
-    console.log(error)
-  }
+  } catch (error) {}
 }
 async function loginWithGoogle() {
   await signInWithGoogle()

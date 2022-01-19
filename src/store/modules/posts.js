@@ -145,7 +145,6 @@ export default {
       )
     },
     fetchPosts: ({ dispatch }) => {
-      console.log('🔥 fetchPosts:', 'posts')
       return dispatch(
         'fetchCollectionDocs',
         { resource: 'posts' },

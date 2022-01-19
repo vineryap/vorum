@@ -20,7 +20,6 @@ export default {
   mutations: {},
   actions: {
     fetchCategories: ({ dispatch }) => {
-      console.log('🔥 fetchCategories:', 'categories')
       return dispatch(
         'fetchCollectionDocs',
         { resource: 'categories' },

@@ -39,7 +39,6 @@ export default {
             previousDoc = previousDoc ? { ...previousDoc } : null
             commit('setItem', { resource, data })
             if (typeof onSnapshotFn === 'function') {
-              console.log('hasPendingWrites', doc.metadata.hasPendingWrites)
               const isLocal = doc.metadata.hasPendingWrites
               onSnapshotFn({ currentDoc: { ...data }, previousDoc, isLocal })
             }
@@ -114,7 +113,6 @@ export default {
     })
   },
   unsubscribeFirestoreListeners: async ({ state, commit }) => {
-    console.log('unsubscribeFirestoreListeners')
     state.unsubscribes.forEach((unsubscribe) => unsubscribe())
     commit('clearAllUnsubscribes')
   },

@@ -152,7 +152,6 @@ export default {
       return docToResource(updatedThread)
     },
     fetchThreads: ({ dispatch }) => {
-      console.log('🔥 fetchThreads:', 'threads')
       return dispatch(
         'fetchCollectionDocs',
         { resource: 'threads' },

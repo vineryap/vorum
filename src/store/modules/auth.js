@@ -48,7 +48,6 @@ export default {
         const auth = getAuth()
         await updateEmail(auth.currentUser, email)
       } catch (error) {
-        console.log('store', error)
         const { addNotification } = useNotifications()
         addNotification({
           message: 'Failed updating Email.',
@@ -64,7 +63,6 @@ export default {
       try {
         return await reauthenticateWithCredential(auth.currentUser, credential)
       } catch (error) {
-        console.log('reauthenticateUser', error)
         const { addNotification } = useNotifications()
         addNotification({
           message: 'Failed confirming account.',
@@ -79,7 +77,6 @@ export default {
       return new Promise((resolve) => {
         const auth = getAuth()
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-          // console.log('initAuthentication', user)
           dispatch('unsubscribeAuthUserListener')
           if (user) {
             await dispatch('fetchAuthUser')
@@ -175,7 +172,6 @@ export default {
     fetchAuthUser: async ({ commit, dispatch }) => {
       const userId = getAuth().currentUser?.uid
       if (!userId) return
-      console.log('🔥 fetchAuthUser:', userId)
 
       const unsubscribeHandler = (unsubscribe) =>
         commit('setAuthUserUnsubscribe', unsubscribe)
@@ -191,8 +187,6 @@ export default {
     },
 
     fetchAuthUserPosts: async ({ state, dispatch }, additionalContraints) => {
-      console.log('🔥 fetchAuthUserPosts:')
-
       const posts = await dispatch(
         'users/fetchUserPostsByQuery',
         { userId: state.authId, additionalContraints },

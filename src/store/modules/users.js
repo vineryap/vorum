@@ -21,7 +21,7 @@ export default {
     items: []
   },
   getters: {
-    user: (state, getters, rootState, rootGetters) => {
+    user: (state, _getters, rootState, _rootGetters) => {
       return (id) => {
         const user = findById(state.items, id)
         if (!user) return null
@@ -57,10 +57,7 @@ export default {
     appendThreadIdToUser: makeAppendChildtoParentMutation({ child: 'threads' })
   },
   actions: {
-    async createUser(
-      { commit },
-      { id, name, username, email, password, avatar }
-    ) {
+    async createUser({ commit }, { id, name, username, email, avatar }) {
       const userData = {
         avatar,
         bio: '',
@@ -97,7 +94,6 @@ export default {
       commit('setItem', { resource: 'users', data: updates }, { root: true })
     },
     fetchUsers: ({ dispatch }) => {
-      console.log('🔥 fetchUsers:', 'users')
       return dispatch(
         'fetchCollectionDocs',
         { resource: 'users' },

@@ -75,10 +75,8 @@ import useNotifications from '@/composables/useNotifications'
 import { useRouter } from 'vue-router'
 import { computed, ref, toRefs } from 'vue'
 import { difference } from 'lodash'
-import { useStore } from 'vuex'
 
 const router = useRouter()
-const store = useStore()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 const { addNotification } = useNotifications()
 const emit = defineEmits(['pageReady'])
@@ -143,7 +141,6 @@ async function initFetch() {
   }
 
   try {
-    console.log('init')
     await fetchPostsAndUsers(thread.posts)
     const forum = await fetchForumById({ id: thread.forumId })
     await fetchCategoryById({ id: forum.categoryId })

@@ -94,7 +94,6 @@ async function fetchUserActivity() {
       userId: userId.value,
       additionalContraints: options
     })
-    console.log(lastVisiblePost.value)
   } else {
     lastVisiblePost.value = await fetchAuthUserPosts({ ...options })
   }
