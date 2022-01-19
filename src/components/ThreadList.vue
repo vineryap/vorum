@@ -66,13 +66,13 @@
                   <router-link
                     :to="{
                       name:
-                        authUser.id === thread.lastUser.id
+                        authUser?.id === thread.lastUser?.id
                           ? 'ProfilePage'
                           : 'UserProfile',
                       params:
-                        authUser.id === thread.lastUser.id
+                        authUser?.id === thread.lastUser?.id
                           ? null
-                          : { userId: thread.lastUser.id }
+                          : { userId: thread.lastUser?.id }
                     }"
                     class="truncate max-w-35 inline-block"
                     >{{ thread.lastUser.username }}</router-link
