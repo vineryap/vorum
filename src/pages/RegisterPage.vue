@@ -2,7 +2,11 @@
   <div class="container">
     <div class="flex-grid justify-center">
       <div class="col-2">
-        <vForm action="" class="card card-form" @submit="register">
+        <vForm
+          action=""
+          class="card card-form rounded-xl shadow"
+          @submit="register"
+        >
           <h1 class="text-center">Register</h1>
 
           <base-form-field

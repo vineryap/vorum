@@ -7,7 +7,7 @@
     </base-head>
     <div class="flex-grid justify-center">
       <div class="col-2">
-        <vForm class="card card-form" @submit="signIn">
+        <vForm class="card card-form rounded-xl shadow" @submit="signIn">
           <h1 class="text-center">Login</h1>
 
           <base-form-field
