@@ -37,13 +37,15 @@
 </template>
 
 <script setup>
-import { mapGetters, mapActions } from '@/helpers'
+import { mapGetters } from '@/helpers'
 import UserActivityList from '@/components/UserActivityList.vue'
 import UserProfileCard from '@/components/UserProfileCard.vue'
 import UserProfileCardEditor from '@/components/UserProfileCardEditor.vue'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
 import { ref, computed, toRefs } from 'vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 
 const props = defineProps({
@@ -58,11 +60,6 @@ const lastVisiblePost = ref(null)
 
 const { authUser } = mapGetters('auth')
 const { user: getUser } = mapGetters('users')
-const { fetchAuthUserPosts } = mapActions('auth')
-const { fetchThreadsByIds } = mapActions('threads')
-const { fetchForumsByIds } = mapActions('forums')
-const { fetchUserById, fetchUsersByIds, fetchUserPostsByQuery } =
-  mapActions('users')
 
 const isUnauthenticatedUser = computed(
   () => !!userId.value && userId.value !== authUser.value?.id
@@ -87,15 +84,20 @@ async function fetchUserActivity() {
 
   if (isUnauthenticatedUser.value) {
     if (!user.value) {
-      await fetchUserById({ id: userId.value })
+      await store.dispatch('users/fetchUserById', { id: userId.value })
     }
     options.userId = userId.value
-    lastVisiblePost.value = await fetchUserPostsByQuery({
-      userId: userId.value,
-      additionalContraints: options
-    })
+    lastVisiblePost.value = await store.dispatch(
+      'users/fetchUserPostsByQuery',
+      {
+        userId: userId.value,
+        additionalContraints: options
+      }
+    )
   } else {
-    lastVisiblePost.value = await fetchAuthUserPosts({ ...options })
+    lastVisiblePost.value = await store.dispatch('auth/fetchAuthUserPosts', {
+      ...options
+    })
   }
   await fetchRelatedData()
 }
@@ -107,11 +109,13 @@ const fetchUserNextPosts = async () => {
 async function fetchRelatedData() {
   const threadIds = posts.value.map((post) => post.threadId)
   if (threadIds.length) {
-    const threads = await fetchThreadsByIds({ ids: threadIds })
+    const threads = await store.dispatch('threads/fetchThreadsByIds', {
+      ids: threadIds
+    })
     const forumIds = threads.map((thread) => thread.forumId)
     const threadAuthorIds = threads.map((thread) => thread.userId)
-    await fetchForumsByIds({ ids: forumIds })
-    await fetchUsersByIds({ ids: threadAuthorIds })
+    await store.dispatch('forums/fetchForumsByIds', { ids: forumIds })
+    await store.dispatch('users/fetchUsersByIds', { ids: threadAuthorIds })
   }
 }
 

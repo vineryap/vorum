@@ -46,19 +46,19 @@ import IconFaPencil from '~icons/fa-solid/pencil-alt'
 import IconFaTrash from '~icons/fa-solid/trash'
 import PostEditor from './PostEditor.vue'
 import PostUserInfo from './PostUserInfo.vue'
-import { mapActions } from '@/helpers'
 import { ref, toRefs } from 'vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const props = defineProps({ posts: { type: Array, required: true } })
 const { posts } = toRefs(props)
 const editing = ref(null)
 
-const { updatePost, deletePost } = mapActions('posts')
 function toggleEditMode(id) {
   editing.value = id === editing.value ? null : id
 }
 function handleUpdate(event) {
-  updatePost(event.post)
+  store.dispatch('posts/updatePost', event.post)
   editing.value = null
 }
 
@@ -66,7 +66,7 @@ async function deletePostHandler(post) {
   const confirmed = confirm(
     'This action is irreversible. Continue to delete post?'
   )
-  if (confirmed) await deletePost({ post })
+  if (confirmed) await store.dispatch('posts/deletePost', { post })
 }
 </script>
 

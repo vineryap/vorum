@@ -74,13 +74,15 @@ import IconFaPencil from '~icons/fa-solid/pencil-alt'
 import PostList from '@/components/PostList.vue'
 import PostEditor from '@/components/PostEditor.vue'
 import TheBreadcrumbs from '@/components/TheBreadcrumbs.vue'
-import { formatNoun, mapActions, mapGetters } from '@/helpers'
+import { formatNoun, mapGetters } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
 import useNotifications from '@/composables/useNotifications'
 import { useRouter } from 'vue-router'
 import { computed, ref, toRefs } from 'vue'
 import { difference } from 'lodash'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const router = useRouter()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 const { addNotification } = useNotifications()
@@ -98,16 +100,13 @@ const posts = computed(() => {
   if (!thread.value) return []
   return thread.value.posts.map((postId) => getPost.value(postId))
 })
-const { fetchCategoryById } = mapActions('categories')
-const { fetchForumById } = mapActions('forums')
-const { fetchThreadById } = mapActions('threads')
-const { fetchPostsByIds, createPost } = mapActions('posts')
-const { fetchUsersByIds } = mapActions('users')
+
 async function submitNewPost({ post }) {
-  await createPost({ ...post, threadId: id.value })
+  await store.dispatch('posts/createPost', { ...post, threadId: id.value })
 }
+
 async function fetchPostsAndUsers(ids) {
-  const posts = await fetchPostsByIds({
+  const posts = await store.dispatch('posts/fetchPostsByIds', {
     ids,
     onSnapshotFn: ({ isLocal, previousDoc }) => {
       if (
@@ -124,11 +123,11 @@ async function fetchPostsAndUsers(ids) {
     .map((post) => post.userId)
     .concat(thread.value.userId)
 
-  await fetchUsersByIds({ ids: postUserIds })
+  await store.dispatch('users/fetchUsersByIds', { ids: postUserIds })
 }
 
 async function initFetch() {
-  const thread = await fetchThreadById({
+  const thread = await store.dispatch('threads/fetchThreadById', {
     id: id.value,
     onSnapshotFn: async ({ isLocal, currentDoc, previousDoc }) => {
       if (!isPageReady.value || isLocal || !previousDoc.lastPostAt) return
@@ -147,8 +146,12 @@ async function initFetch() {
 
   try {
     await fetchPostsAndUsers(thread.posts)
-    const forum = await fetchForumById({ id: thread.forumId })
-    await fetchCategoryById({ id: forum.categoryId })
+    const forum = await store.dispatch('forums/fetchForumById', {
+      id: thread.forumId
+    })
+    await store.dispatch('categories/fetchCategoryById', {
+      id: forum.categoryId
+    })
   } catch (error) {
     isError.value = true
   }

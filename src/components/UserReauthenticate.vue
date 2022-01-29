@@ -26,10 +26,11 @@
 </template>
 
 <script setup>
-import { mapActions } from '@/helpers'
 import { computed, ref, toRefs } from 'vue'
 import { VueFinalModal } from 'vue-final-modal'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const emit = defineEmits(['reAuthSuccess', 'reAuthFailed', 'update:modelValue'])
 const props = defineProps({
   modelValue: {
@@ -48,11 +49,9 @@ const showModal = computed({
   }
 })
 
-const { reauthenticateUser } = mapActions('auth')
-
 async function reauthenticate() {
   try {
-    await reauthenticateUser({
+    await store.dispatch('auth/reauthenticateUser', {
       email: email.value,
       password: password.value
     })

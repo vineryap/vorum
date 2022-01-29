@@ -15,11 +15,13 @@
 
 <script setup>
 import ForumList from '@/components/ForumList.vue'
-import { mapActions, mapGetters } from '@/helpers'
+import { mapGetters } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
 import { computed, toRefs, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const router = useRouter()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 const emit = defineEmits(['pageReady'])
@@ -36,27 +38,28 @@ const forums = computed(() => {
   return category.value.forums.map((forumId) => getForum.value(forumId))
 })
 
-const { fetchCategoryById } = mapActions('categories')
-const { fetchForumsByIds } = mapActions('forums')
-const { fetchThreadsByIds } = mapActions('threads')
-const { fetchUsersByIds } = mapActions('users')
-
 async function initFetch() {
-  const thisCategory = await fetchCategoryById({ id: id.value })
+  const thisCategory = await store.dispatch('categories/fetchCategoryById', {
+    id: id.value
+  })
   if (!thisCategory) {
     router.push({ name: 'NotFound' })
   }
   try {
     if (thisCategory.forums.length) {
-      const forums = await fetchForumsByIds({ ids: thisCategory.forums })
+      const forums = await store.dispatch('forums/fetchForumsByIds', {
+        ids: thisCategory.forums
+      })
       const lastThreadIds = forums
         .filter((f) => !!f.threads)
         .map((f) => f.threads[f.threads?.length - 1])
 
       if (lastThreadIds.length) {
-        const threads = await fetchThreadsByIds({ ids: lastThreadIds })
+        const threads = await store.dispatch('threads/fetchThreadsByIds', {
+          ids: lastThreadIds
+        })
         const userIds = threads.map((thread) => thread.userId)
-        await fetchUsersByIds({ ids: userIds })
+        await store.dispatch('users/fetchUsersByIds', { ids: userIds })
       }
     }
     pageLoaded(emit)

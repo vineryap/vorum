@@ -1,11 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { mapActions } from '@/helpers'
 import BaseLayout from './layouts/BaseLayout.vue'
 import NProgress from 'nprogress'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
-const { fetchAuthUser } = mapActions('auth')
+const store = useStore()
 const router = useRouter()
 const showPage = ref(false)
 
@@ -18,7 +18,7 @@ router.beforeEach(() => {
   NProgress.start()
 })
 async function initFetch() {
-  await fetchAuthUser()
+  await store.dispatch('auth/fetchAuthUser')
   NProgress.configure({ showSpinner: false })
 }
 initFetch()

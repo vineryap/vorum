@@ -22,11 +22,13 @@
 
 <script setup>
 import ThreadEditor from '@/components/ThreadEditor.vue'
-import { mapActions, mapGetters } from '@/helpers'
+import { mapGetters } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
 import { computed, ref, toRefs } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const router = useRouter()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 const emit = defineEmits(['pageReady'])
@@ -38,10 +40,11 @@ const { forumId } = toRefs(props)
 const { forum: getForum } = mapGetters('forums')
 const forum = computed(() => getForum.value(forumId.value))
 
-const { createThread } = mapActions('threads')
-const { fetchForumById } = mapActions('forums')
 async function save(threadData) {
-  const thread = await createThread({ ...threadData, forumId: forumId.value })
+  const thread = await store.dispatch('threads/createThread', {
+    ...threadData,
+    forumId: forumId.value
+  })
   router.push({ name: 'Thread', params: { id: thread.id } })
 }
 function cancel() {
@@ -58,7 +61,7 @@ onBeforeRouteLeave(() => {
 })
 
 async function initFetch() {
-  await fetchForumById({
+  await store.dispatch('forums/fetchForumById', {
     id: forumId.value
   })
   pageLoaded(emit)

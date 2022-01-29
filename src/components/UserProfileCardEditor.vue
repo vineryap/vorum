@@ -131,13 +131,14 @@
 
 <script setup>
 import IconFaCamera from '~icons/fa-solid/camera'
-import { mapActions } from '@/helpers'
 import UserProfileCardEditorRandomAvatar from './UserProfileCardEditorRandomAvatar.vue'
 import UserReauthenticate from './UserReauthenticate.vue'
 import useNotifications from '@/composables/useNotifications'
 import { reactive, ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const router = useRouter()
 const { addNotification } = useNotifications()
 const props = defineProps({ user: { type: Object, required: true } })
@@ -148,8 +149,6 @@ const uploadingImage = ref(false)
 const locationOptions = ref([])
 const needsReAuth = ref(false)
 
-const { updateUser } = mapActions('users')
-const { uploadAvatar, updateUserEmail } = mapActions('auth')
 async function loadLocationOptions() {
   if (locationOptions.value.length) return
   const url = `${import.meta.env.VITE_REST_COUNTRIES_ENDPOINT}/all`
@@ -168,7 +167,9 @@ async function loadLocationOptions() {
   locationOptions.value = data
 }
 async function onReauthenticated() {
-  await updateUserEmail({ email: currentUser.email })
+  await await store.dispatch('auth/updateUserEmail', {
+    email: currentUser.email
+  })
   await saveUserData()
 }
 async function onReauthenticatedFail() {
@@ -180,7 +181,7 @@ async function onReauthenticatedFail() {
   router.push({ name: 'ProfilePage' })
 }
 async function saveUserData() {
-  await updateUser(currentUser)
+  await store.dispatch('users/updateUser', currentUser)
   router.push({ name: 'ProfilePage' })
   addNotification({
     message: 'User successfully updated',
@@ -202,7 +203,7 @@ function cancel() {
 async function imageUploadHandler(e) {
   uploadingImage.value = true
   const file = e.target.files[0]
-  const uploadedImage = await uploadAvatar({ file })
+  const uploadedImage = await store.dispatch('auth/uploadAvatar', { file })
   currentUser.avatar = uploadedImage || currentUser.avatar
   uploadingImage.value = false
 }
@@ -214,7 +215,7 @@ async function randomAvatarHandler() {
     const image = await fetch(currentUser.avatar)
     const blob = await image.blob()
     const filename = 'random'
-    currentUser.avatar = await uploadAvatar({
+    currentUser.avatar = await await store.dispatch('auth/uploadAvatar', {
       file: blob,
       filename
     })

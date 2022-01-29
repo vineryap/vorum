@@ -26,32 +26,4 @@ const mapGetters = (module) => {
   )
 }
 
-const mapMutations = (module) => {
-  const store = useStore()
-  return Object.fromEntries(
-    Object.keys(store._mutations[module]).map((mutation) =>
-      module !== undefined && mutation.startsWith(module)
-        ? [
-            mutation.substring(module.length + 1),
-            (value) => store.commit(mutation, value)
-          ]
-        : [mutation, (value) => store.commit(mutation, value)]
-    )
-  )
-}
-
-const mapActions = (module) => {
-  const store = useStore()
-  return Object.fromEntries(
-    Object.keys(store._actions).map((action) =>
-      module !== undefined && action.startsWith(module)
-        ? [
-            action.substring(module.length + 1),
-            (value) => store.dispatch(action, value)
-          ]
-        : [action, (value) => store.dispatch(action, value)]
-    )
-  )
-}
-
-export { mapState, mapGetters, mapMutations, mapActions }
+export { mapState, mapGetters }

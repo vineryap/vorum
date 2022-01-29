@@ -50,10 +50,11 @@
 </template>
 
 <script setup>
-import { mapActions } from '@/helpers'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -61,16 +62,16 @@ const form = ref({
   email: '',
   password: ''
 })
+
 const emit = defineEmits(['pageReady'])
-const { signInWithEmailAndPassword, signInWithGoogle } = mapActions('auth')
 async function signIn() {
   try {
-    await signInWithEmailAndPassword(form.value)
+    await store.dispatch('auth/signInWithEmailAndPassword', form.value)
     successRedirect()
   } catch (error) {}
 }
 async function loginWithGoogle() {
-  await signInWithGoogle()
+  await store.dispatch('auth/signInWithGoogle')
   successRedirect()
 }
 function successRedirect() {

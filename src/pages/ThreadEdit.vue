@@ -25,11 +25,13 @@
 
 <script setup>
 import ThreadEditor from '@/components/ThreadEditor.vue'
-import { mapActions, mapGetters } from '@/helpers'
+import { mapGetters } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
 import { computed, ref, toRefs } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const router = useRouter()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 const emit = defineEmits(['pageReady'])
@@ -44,11 +46,8 @@ const { post: getPost } = mapGetters('posts')
 const thread = computed(() => getThread.value(id.value))
 const content = computed(() => getPost.value(thread.value.firstPostId)?.text)
 
-const { updateThread } = mapActions('threads')
-const { fetchThreadById } = mapActions('threads')
-const { fetchPostById } = mapActions('posts')
 async function save(threadData) {
-  await updateThread({ ...threadData, id: id.value })
+  await store.dispatch('threads/updateThread', { ...threadData, id: id.value })
   redirectToThread()
 }
 function cancel() {
@@ -68,10 +67,12 @@ onBeforeRouteLeave(() => {
 })
 
 async function initFetch() {
-  const thisThread = await fetchThreadById({ id: id.value })
+  const thisThread = await store.dispatch('threads/fetchThreadById', {
+    id: id.value
+  })
   if (!thisThread) return router.push({ name: 'NotFound' })
   try {
-    await fetchPostById({ id: thisThread.posts[0] })
+    await store.dispatch('posts/fetchPostById', { id: thisThread.posts[0] })
   } catch (error) {
     isError.value = true
   }

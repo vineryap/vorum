@@ -36,11 +36,13 @@
 <script setup>
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
 import { computed, reactive, toRefs, watch, ref } from 'vue'
-import { mapActions, mapGetters, mapState } from '@/helpers'
+import { mapGetters, mapState } from '@/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import TheBreadcrumbs from '@/components/TheBreadcrumbs.vue'
 import ThreadList from '@/components/ThreadList.vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const router = useRouter()
 const route = useRoute()
 const { isPageReady, pageLoaded } = usePageLoadStatus()
@@ -57,34 +59,19 @@ const pagination = reactive({
 })
 
 const { items: allThreads } = mapState('threads')
-
-// const { fetchCategoryById } = mapActions('categories')
-const { fetchForumById } = mapActions('forums')
-// const { fetchForumsByIds } = mapActions('forums')
-const { fetchThreadsByPage } = mapActions('threads')
-const { fetchPostsByIds } = mapActions('posts')
-const { fetchUsersByIds } = mapActions('users')
-
-// const { category: getCategory } = mapGetters('categories')
 const { forum: getForum } = mapGetters('forums')
 const { thread: getThread } = mapGetters('threads')
 const forum = computed(() => {
   return getForum.value(id.value)
 })
-// const subForum = computed(() => {
-//   if (!forum.value) return null
-// return getCategory.value(forum.value.categoryId)
-// })
+
 const threads = computed(() => {
   if (!allThreads.value.length) return []
   return allThreads.value
     .filter((thread) => thread.forumId === forum.value.id)
     .map((thread) => getThread.value(thread.id))
 })
-// const forums = computed(() => {
-//   if (!subForum.value) return []
-//   return subForum.value.forums?.map((forumId) => getForum.value(forumId))
-// })
+
 const forumThreadsCount = computed(() => {
   return forum.value.threads?.length || 0
 })
@@ -98,30 +85,28 @@ watch(pagination, ({ page }) => {
 })
 
 async function fetchRelatedData(forumThreadIds) {
-  const threads = await fetchThreadsByPage({
+  const threads = await store.dispatch('threads/fetchThreadsByPage', {
     ids: forumThreadIds,
     page: pagination.page,
     perPage: pagination.perPage
   })
   const lastPostIds = threads.map((thread) => thread.lastPostId)
-  const lastPosts = await fetchPostsByIds({ ids: lastPostIds })
+  const lastPosts = await store.dispatch('posts/fetchPostsByIds', {
+    ids: lastPostIds
+  })
   const lastPostUserIds = lastPosts.map((post) => post.userId)
   const threadsUserIds = threads.map((thread) => thread.userId)
   const userIds = [...lastPostUserIds, ...threadsUserIds]
-  await fetchUsersByIds({ ids: userIds })
+  await store.dispatch('users/fetchUsersByIds', { ids: userIds })
 }
 
 async function initFetch() {
-  const thisForum = await fetchForumById({ id: id.value })
+  const thisForum = await store.dispatch('forums/fetchForumById', {
+    id: id.value
+  })
   if (!thisForum) {
     router.push({ name: 'NotFound' })
   }
-  // const category = await fetchCategoryById({ id: thisForum.categoryId })
-  // const forums = await fetchForumsByIds({ ids: category.forums })
-  // const forumsThreadIds = forums
-  //   .filter((f) => !!f.threads)
-  // .map((f) => f.threads[f.threads?.length - 1])
-  // const threadIds = [...forumsThreadIds, ...thisForum.threads]
   try {
     if (thisForum.threads) {
       await fetchRelatedData(thisForum.threads)
