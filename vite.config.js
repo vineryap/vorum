@@ -6,7 +6,24 @@ import Icons from 'unplugin-icons/vite'
 import eslintPlugin from 'vite-plugin-eslint'
 import analyze from 'rollup-plugin-analyzer'
 
-// https://vitejs.dev/config/
+const removeDataTestAttr = (node) => {
+  if (process.env.NODE_ENV === 'production') {
+    if (node.type === 1 /*NodeTypes.ELEMENT*/) {
+      for (let i = 0; i < node.props.length; i++) {
+        const p = node.props[i]
+        if (
+          p &&
+          p.type === 6 /*NodeTypes.ATTRIBUTE*/ &&
+          p.name === 'data-test'
+        ) {
+          node.props.splice(i, 1)
+          i--
+        }
+      }
+    }
+  }
+}
+
 export default defineConfig({
   build: {
     target: ['es2015'],
@@ -20,7 +37,13 @@ export default defineConfig({
     }
   },
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          nodeTransforms: [removeDataTestAttr]
+        }
+      }
+    }),
     WindiCSS(),
     Icons({ compiler: 'vue3' }),
     eslintPlugin({ fix: true })
