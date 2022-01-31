@@ -3,10 +3,21 @@ import Vue from '@vitejs/plugin-vue'
 const path = require('path')
 import Icons from 'unplugin-icons/vite'
 
+const customElements = [
+  'ForumList',
+  'base-avatar-image',
+  'router-link',
+  'base-time'
+]
+const isCustomElement = (tag) => customElements.includes(tag)
+
 export default defineConfig({
-  plugins: [Vue(), Icons({ compiler: 'vue3' })],
+  plugins: [
+    Vue({ template: { compilerOptions: { isCustomElement } } }),
+    Icons({ compiler: 'vue3' })
+  ],
   test: {
-    environment: 'happy-dom'
+    environment: 'jsdom'
   },
   resolve: {
     alias: {
