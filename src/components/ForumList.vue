@@ -22,12 +22,13 @@
             {{ categoryDescription }}
           </p>
         </div>
-        <ul data-test="forum-list" class="flex flex-col divide-y w-full">
+        <ul class="flex flex-col divide-y w-full">
           <li
             v-for="(forum, index) in forums"
             :key="index"
             class="forum-list flex flex-row"
             sm="px-5"
+            data-test="forum-list"
           >
             <div
               v-if="forum"
