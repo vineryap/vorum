@@ -2,6 +2,7 @@
   <div class="w-full mx-auto" sm="container">
     <div class="mb-4 mx-0">
       <div
+        data-test="categories"
         class="container flex flex-col mx-auto w-full items-center justify-center bg-white dark:bg-gray-800 rounded-lg shadow"
       >
         <div class="px-4 py-5 sm:px-6 border-b w-full break-words">
