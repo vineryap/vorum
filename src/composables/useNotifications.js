@@ -26,10 +26,15 @@ const addNotification = ({ message, type, timeout }) => {
   }
 }
 
+const clearNotifications = () => {
+  notifications.splice(0)
+}
+
 export default function useNotifications() {
   return {
     notifications,
     addNotification,
-    removeNotification
+    removeNotification,
+    clearNotifications
   }
 }
