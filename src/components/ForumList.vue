@@ -2,26 +2,27 @@
   <div class="w-full mx-auto" sm="container">
     <div class="mb-4 mx-0">
       <div
-        data-test="categories"
         class="container flex flex-col mx-auto w-full items-center justify-center bg-white dark:bg-gray-800 rounded-lg shadow"
       >
         <div class="px-4 py-5 sm:px-6 border-b w-full break-words">
           <h2 class="font-medium text-gray-900 dark:text-white">
             <router-link
               v-if="categoryId"
+              data-test="category-link"
               :to="{ name: 'Category', params: { id: categoryId } }"
               >{{ categoryName }}</router-link
             >
-            <span v-else>{{ categoryName }}</span>
+            <span v-else data-test="category-name">{{ categoryName }}</span>
           </h2>
           <p
             v-if="categoryDescription"
+            data-test="category-description"
             class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-200"
           >
             {{ categoryDescription }}
           </p>
         </div>
-        <ul class="flex flex-col divide-y w-full">
+        <ul data-test="forum-list" class="flex flex-col divide-y w-full">
           <li
             v-for="(forum, index) in forums"
             :key="index"
@@ -131,9 +132,11 @@
   </div>
 </template>
 <script setup>
-import { formatNoun, mapGetters } from '@/helpers'
-import { toRefs } from 'vue'
+import { formatNoun } from '@/helpers'
+import { computed, toRefs } from 'vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const props = defineProps({
   forums: {
     type: Array,
@@ -157,7 +160,7 @@ const props = defineProps({
 
 const { forums, categoryName, categoryId, categoryDescription } = toRefs(props)
 
-const { authUser } = mapGetters('auth')
+const authUser = computed(() => store.getters['auth/authUser'])
 </script>
 
 <style scoped>

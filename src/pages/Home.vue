@@ -7,9 +7,8 @@
 
 <script setup>
 import CategoryList from '@/components/CategoryList.vue'
-import { mapState } from '@/helpers'
 import usePageLoadStatus from '@/composables/usePageLoadStatus'
-import { defineEmits, ref } from 'vue'
+import { computed, defineEmits, ref } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
@@ -17,7 +16,7 @@ const emit = defineEmits(['pageReady'])
 const { isPageReady, pageLoaded } = usePageLoadStatus()
 
 const isError = ref(false)
-const { items: categories } = mapState('categories')
+const categories = computed(() => store.state.categories.items)
 
 const initFetch = async () => {
   try {
