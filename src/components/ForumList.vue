@@ -37,12 +37,14 @@
               <div class="sm:basis-1/2 pl-1 sm:mr-16 break-all">
                 <h3 class="forum-title font-medium dark:text-white">
                   <router-link
+                    data-test="forum-name"
                     :to="{ name: 'Forum', params: { id: forum.id } }"
                     >{{ forum.name }}</router-link
                   >
                 </h3>
                 <p
                   v-if="forum.description"
+                  data-test="forum-description"
                   class="mt-1 max-w-2xl text-sm xl:text-base text-gray-500 dark:text-gray-200"
                 >
                   {{ forum.description }}
@@ -51,6 +53,7 @@
               <div
                 class="basis-1/8 items-center text-right text-sm sm:text-base 2xl:text-lg dark:text-gray-300 hidden"
                 sm="flex"
+                data-test="forum-threads-count"
               >
                 {{ forum.threadsCount }}
                 {{
@@ -63,11 +66,13 @@
                 v-if="forum.lastThreadUser"
                 class="text-right pr-1 ml-16 hidden justify-end"
                 sm="block basis-1/5"
+                data-test="forum-last-thread-user"
               >
                 <div
                   class="text-sm sm:text-base 2xl:text-xl font-medium dark:text-white"
                 >
                   <router-link
+                    data-test="forum-last-thread-title"
                     :to="{
                       name: 'Thread',
                       params: {
@@ -84,6 +89,7 @@
                 >
                   by
                   <router-link
+                    data-test="forum-last-thread-user-username"
                     :to="{
                       name:
                         authUser?.id === forum.lastThreadUser?.id
@@ -97,7 +103,10 @@
                     >{{ forum.lastThreadUser.username }}</router-link
                   >
                   <div>
-                    <base-time :timestamp="forum.lastThread.publishedAt" />
+                    <base-time
+                      data-test="forum-last-thread-published"
+                      :timestamp="forum.lastThread.publishedAt"
+                    />
                   </div>
                 </div>
               </div>
@@ -105,6 +114,7 @@
                 v-else
                 class="basis-1/5 text-right pr-1 ml-16 hidden justify-end"
                 sm="flex"
+                data-test="forum-last-thread-user-fallback"
               ></div>
               <div
                 class="flex-col w-10 h-10 justify-center items-center ml-4 hidden"
@@ -119,6 +129,7 @@
                   class="block relative"
                 >
                   <base-avatar-image
+                    data-test="forum-last-thread-user-avatar"
                     class="avatar"
                     :src="forum.lastThreadUser?.avatar"
                     :alt="`${forum.lastThreadUser?.username}'s avatar.`"
