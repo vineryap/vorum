@@ -38,14 +38,16 @@
 </template>
 
 <script setup>
-import { formatNoun, mapGetters } from '@/helpers'
+import { formatNoun } from '@/helpers'
 import { computed, toRefs } from 'vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const props = defineProps({ id: { type: String, required: true } })
 const { id } = toRefs(props)
 
-const { authUser } = mapGetters('auth')
-const { user: getUser } = mapGetters('users')
+const authUser = computed(() => store.getters['auth/authUser'])
+const getUser = computed(() => store.getters['users/user'])
 const user = computed(() => getUser.value(id.value))
 </script>
 
